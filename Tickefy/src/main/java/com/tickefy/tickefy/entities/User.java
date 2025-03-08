@@ -1,6 +1,7 @@
 package com.tickefy.tickefy.entities;
 
 
+import com.tickefy.tickefy.entities.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,7 +32,7 @@ public class User {
 
     private String phone;
 
-    private String role;
+    private Role role;
 
     private String profile_picture;
 
@@ -44,7 +45,7 @@ public class User {
     public User() {
     }
 
-    public User(UUID id, String f_name, String l_name, String email, String password, Date birthdate, String phone, String role, String profile_picture) {
+    public User(UUID id, String f_name, String l_name, String email, String password, Date birthdate, String phone, Role role, String profile_picture) {
         this.id = id;
         this.f_name = f_name;
         this.l_name = l_name;
@@ -56,7 +57,7 @@ public class User {
         this.profile_picture = profile_picture;
     }
 
-    public User(String f_name, String l_name, String email, String password, Date birthdate, String phone, String role, String profile_picture) {
+    public User(String f_name, String l_name, String email, String password, Date birthdate, String phone, Role role, String profile_picture) {
         this.f_name = f_name;
         this.l_name = l_name;
         this.email = email;
@@ -123,11 +124,11 @@ public class User {
         this.phone = phone;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 

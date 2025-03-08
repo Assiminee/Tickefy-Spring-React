@@ -14,5 +14,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmail(String email);
 
-    User user = new User();
+    boolean existsByIdIsNotAndEmail(UUID id, String email);
 }

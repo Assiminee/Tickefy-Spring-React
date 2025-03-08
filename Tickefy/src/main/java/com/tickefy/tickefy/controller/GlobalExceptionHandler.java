@@ -2,6 +2,7 @@ package com.tickefy.tickefy.controller;
 
 
 
+import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.exceptions.UnauthorizedException;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleNotFoundException(ResourceNotFoundException ex) {
         System.out.println(ex.getMessage());
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<String> handleConflictException(ConflictException ex) {
+        System.out.println(ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
