@@ -23,7 +23,6 @@ public class UserDTO {
 
 	private String email;
 
-	@Temporal(TemporalType.DATE)
 	private Date birthdate;
 
 	private String phone;
@@ -38,11 +37,15 @@ public class UserDTO {
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
+	private String nationality;
+
+	private String flagged;
+
 	public UserDTO() {
 
 	}
 
-	public UserDTO(UUID id, String f_name, String l_name, String email, String phone, Date birthdate, String role, LocalDateTime createdAt, String profile_picture, LocalDateTime updatedAt) {
+	public UserDTO(UUID id, String f_name, String l_name, String email, String phone, Date birthdate, String role, LocalDateTime createdAt, String profile_picture, LocalDateTime updatedAt, String nationality, String flagged) {
 		this.id = id;
 		this.f_name = f_name;
 		this.l_name = l_name;
@@ -53,6 +56,8 @@ public class UserDTO {
 		this.createdAt = createdAt;
 		this.profile_picture = profile_picture;
 		this.updatedAt = updatedAt;
+		this.nationality = nationality;
+		this.flagged = flagged;
 	}
 
 	public UUID getId() {
@@ -133,5 +138,21 @@ public class UserDTO {
 
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public String getNationality() {
+		return nationality;
+	}
+
+	public void setNationality(String nationality) {
+		this.nationality = nationality;
+	}
+
+	public String getFlagged() {
+		return flagged;
+	}
+
+	public void setFlagged(String flagged) {
+		this.flagged = flagged;
 	}
 }

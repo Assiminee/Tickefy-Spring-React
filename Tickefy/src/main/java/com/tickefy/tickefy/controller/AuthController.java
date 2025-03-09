@@ -7,26 +7,27 @@ import com.tickefy.tickefy.entities.User;
 import com.tickefy.tickefy.entities.enums.Role;
 import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.repository.UserRepository;
+import com.tickefy.tickefy.request.LoginRequest;
+import com.tickefy.tickefy.request.SignupRequest;
 import com.tickefy.tickefy.response.AuthResponse;
 import com.tickefy.tickefy.service.CustomerUserServiceImplementation;
 import com.tickefy.tickefy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     private UserRepository userRepository;
@@ -51,42 +52,36 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> createUserHandler(
-            @RequestParam("firstName") String firstName
-            , @RequestParam("lastName") String lastName
-            , @RequestParam("email") String email
-            , @RequestParam("password") String password
-            , @RequestParam("phone") String phone
-            , @RequestParam("birthdate") Date birthDate
-            , @RequestParam("nationality") String nationality
-            , @RequestParam("profilePicture") MultipartFile profilePicture
-    ) throws Exception
+             @RequestBody SignupRequest signupRequest
+    )
     {
+
+        String email = signupRequest.getEmail();
+        String password = signupRequest.getPassword();
+
+        if(userRepository.existsByEmail(email))
+            throw new ConflictException("Email already exists");
+
         try {
-            if(userRepository.existsByEmail(email))
-                throw new ConflictException("Email already exists");
+
 
             //create new Client
 
             Client newUser = new Client();
 
-//            try {
-//                newUser.setGender(Gender.valueOf(gender));
-//            } catch (Exception e) {
-//                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//            }
-
-            newUser.setBirthdate(birthDate);
+            newUser.setBirthdate(signupRequest.getBirthdate());
             newUser.setEmail(email);
-            newUser.setF_name(firstName);
-            newUser.setL_name(lastName);
-            newUser.setNationality(nationality);
-            newUser.setPhone(phone);
+            newUser.setF_name(signupRequest.getF_name());
+            newUser.setL_name(signupRequest.getL_name());
+        //  newUser.setNationality(nationality);
+            newUser.setPhone(signupRequest.getPhone());
             newUser.setRole(Role.ROLE_CLIENT);
             newUser.setFlagged(false);
             newUser.setPassword(passwordEncoder.encode(password));
 
 
-            userService.insertUser(newUser, profilePicture);
+         //   userService.insertUser(newUser, profilePicture);
+            userRepository.save(newUser);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(email , password);
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -105,6 +100,60 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login (@RequestBody LoginRequest loginRequest) {
+
+        AuthResponse authResponse = new AuthResponse();
+
+        try {
+            String username = loginRequest.getEmail();
+            String password = loginRequest.getPassword();
+
+            System.out.println("Login Successful");
+            System.out.println(username+ " ------- " +password);
+
+
+            Authentication authentication = authenticate(username , password);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            String token = JwtProvider.generateToken(authentication);
+
+            authResponse.setJwt(token);
+
+            return new ResponseEntity<>(authResponse , HttpStatus.OK);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+
+    //authenticate methode to check user and motdepasse
+    private Authentication authenticate(String username, String password) {
+
+        UserDetails userDetails = customUserDetails.loadUserByUsername(username);
+
+        System.out.println("Sign in userDetails - " +userDetails);
+
+        if(userDetails == null) {
+            System.out.println("Sign in UserDetails - null " + userDetails);
+            throw new BadCredentialsException("Invalid username or password");
+        }
+
+        if(!passwordEncoder.matches(password, userDetails.getPassword())) {
+            System.out.println("sign in userDetails - password not match " +userDetails);
+            throw new BadCredentialsException("Invalid username or password");
+        }
+
+        return new UsernamePasswordAuthenticationToken(userDetails, null , userDetails.getAuthorities());
+
+
+    }
+
+
+
 
 
 
