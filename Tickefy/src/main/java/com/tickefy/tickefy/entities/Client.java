@@ -3,9 +3,11 @@ package com.tickefy.tickefy.entities;
 
 import com.tickefy.tickefy.entities.enums.Role;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -15,6 +17,7 @@ public class Client extends User {
     private String nationality;
 
     private boolean flagged;
+
 
     public Client(String nationality, boolean flagged) {
         this.nationality = nationality;

@@ -52,16 +52,16 @@ public class UserController {
             User user = userService.getProfile(jwt);
             user.setPassword("");
 
-            UserDTO userDTO = new UserDTO();
-
-            userDTO.setId(user.getId());
-            userDTO.setF_name(user.getF_name());
-            userDTO.setL_name(user.getL_name());
-            userDTO.setEmail(user.getEmail());
-            userDTO.setProfile_picture(user.getProfile_picture());
-            userDTO.setBirthdate(user.getBirthdate());
-            userDTO.setRole(String.valueOf(user.getRole()));
-            userDTO.setPhone(user.getPhone());
+//            UserDTO userDTO = new UserDTO();
+//
+//            userDTO.setId(user.getId());
+//            userDTO.setF_name(user.getF_name());
+//            userDTO.setL_name(user.getL_name());
+//            userDTO.setEmail(user.getEmail());
+//            userDTO.setProfile_picture(user.getProfile_picture());
+//            userDTO.setBirthdate(user.getBirthdate());
+//            userDTO.setRole(String.valueOf(user.getRole()));
+//            userDTO.setPhone(user.getPhone());
            // userDTO.setNationality();
 
             return new ResponseEntity<>(user, HttpStatus.OK);
@@ -118,7 +118,6 @@ public class UserController {
 
             User user = userService.updateUser(loggedUser, updatedUser, profilePicture);
             user.setPassword("");
-
 
             return new ResponseEntity<>(user, HttpStatus.OK);
 
