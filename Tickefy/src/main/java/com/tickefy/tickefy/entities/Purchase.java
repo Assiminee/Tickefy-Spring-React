@@ -25,4 +25,73 @@ public class Purchase {
 
     @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Payment payment; // Associated payment for this purchase
+
+
+    public Purchase() {
+    }
+
+    public Purchase(UUID id, int amount, double totalPrice, Client client, List<Ticket> tickets, Payment payment) {
+        this.id = id;
+        this.amount = amount;
+        this.totalPrice = totalPrice;
+        this.client = client;
+        this.tickets = tickets;
+        this.payment = payment;
+    }
+
+    public Purchase(int amount, double totalPrice, Client client, List<Ticket> tickets, Payment payment) {
+        this.amount = amount;
+        this.totalPrice = totalPrice;
+        this.client = client;
+        this.tickets = tickets;
+        this.payment = payment;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public List<Ticket> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(List<Ticket> tickets) {
+        this.tickets = tickets;
+    }
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
+    }
 }

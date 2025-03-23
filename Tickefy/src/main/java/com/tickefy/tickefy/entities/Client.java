@@ -3,7 +3,6 @@ package com.tickefy.tickefy.entities;
 
 import com.tickefy.tickefy.entities.enums.Role;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import lombok.*;
 
 import java.util.Date;
