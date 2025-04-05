@@ -1,9 +1,8 @@
-package com.tickefy.stadium_seats.entities;
+package com.tickefy.tickefy.entities;
 
 
-import jakarta.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,35 +21,24 @@ public class Stadium {
 
     private String city;
 
-    private String address;
-
-    private String country;
-
-    private int gateCount;
 
     @OneToMany(mappedBy = "stadium", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Seat> seats;
 
     public Stadium() {}
 
-    public Stadium(UUID id, String name, String city, String address, String country, int gateCount, List<Seat> seats) {
+    public Stadium(UUID id, String name, String city, List<Seat> seats) {
         this.id = id;
         this.name = name;
         this.city = city;
-        this.address = address;
-        this.country = country;
-        this.gateCount = gateCount;
         this.seats = seats;
     }
 
-    public Stadium(String name, String city, String address, String country, int gateCount, List<Seat> seats) {
+    public Stadium(String name, String city, List<Seat> seats) {
         this.name = name;
         this.city = city;
-        this.address = address;
-        this.country = country;
-        this.gateCount = gateCount;
         this.seats = seats;
-
     }
 
     public UUID getId() {
@@ -75,30 +63,6 @@ public class Stadium {
 
     public void setCity(String city) {
         this.city = city;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public int getGateCount() {
-        return gateCount;
-    }
-
-    public void setGateCount(int gateCount) {
-        this.gateCount = gateCount;
     }
 
     public List<Seat> getSeats() {

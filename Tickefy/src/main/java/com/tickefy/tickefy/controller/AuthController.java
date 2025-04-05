@@ -52,35 +52,30 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> createUserHandler(
-             @RequestBody SignupRequest signupRequest
+              @RequestParam("f_name") String f_name
+            , @RequestParam("l_name") String l_name
+            , @RequestParam("email") String email
+            , @RequestParam("password") String password
+            , @RequestParam("phone") String phone
+            , @RequestParam(name = "facePhoto",required = false) MultipartFile facePhoto
     )
     {
-
-        String email = signupRequest.getEmail();
-        String password = signupRequest.getPassword();
 
         if(userRepository.existsByEmail(email))
             throw new ConflictException("Email already exists");
 
         try {
-
-
             //create new Client
-
             Client newUser = new Client();
 
-            newUser.setBirthdate(signupRequest.getBirthdate());
             newUser.setEmail(email);
-            newUser.setF_name(signupRequest.getF_name());
-            newUser.setL_name(signupRequest.getL_name());
-        //  newUser.setNationality(nationality);
-            newUser.setPhone(signupRequest.getPhone());
+            newUser.setF_name(f_name);
+            newUser.setL_name(l_name);
+            newUser.setPhone(phone);
             newUser.setRole(Role.ROLE_CLIENT);
             newUser.setFlagged(false);
             newUser.setPassword(passwordEncoder.encode(password));
 
-
-         //   userService.insertUser(newUser, profilePicture);
             userRepository.save(newUser);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(email , password);

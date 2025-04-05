@@ -21,11 +21,15 @@ public class Ticket {
     @CreationTimestamp
     private LocalDateTime purchaseDate;
 
-    private String matchName; // Endpoint linking to the match details
+    private String matchName;
 
-    private int seatNumber;  // Endpoint linking to seat details
+    private String matchDate;
 
     private String qrCode; // Unique QR code for entry verification
+
+    @ManyToOne
+    @JoinColumn(name = "seat_id", nullable = false)
+    private Seat seat;  // Linking ticket to a seat
 
     @ManyToOne
     @JoinColumn(name = "purchase_id", nullable = false)
@@ -35,20 +39,22 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(UUID id, LocalDateTime purchaseDate, String matchName, int seatNumber, String qrCode, Purchase purchase) {
+    public Ticket(UUID id, LocalDateTime purchaseDate, String matchName, String matchDate, String qrCode, Seat seat, Purchase purchase) {
         this.id = id;
         this.purchaseDate = purchaseDate;
         this.matchName = matchName;
-        this.seatNumber = seatNumber;
+        this.matchDate = matchDate;
         this.qrCode = qrCode;
+        this.seat = seat;
         this.purchase = purchase;
     }
 
-    public Ticket(LocalDateTime purchaseDate, String matchName, int seatNumber, String qrCode, Purchase purchase) {
+    public Ticket(LocalDateTime purchaseDate, String matchName, String matchDate, String qrCode, Seat seat, Purchase purchase) {
         this.purchaseDate = purchaseDate;
         this.matchName = matchName;
-        this.seatNumber = seatNumber;
+        this.matchDate = matchDate;
         this.qrCode = qrCode;
+        this.seat = seat;
         this.purchase = purchase;
     }
 
@@ -68,7 +74,6 @@ public class Ticket {
         this.purchaseDate = purchaseDate;
     }
 
-
     public String getMatchName() {
         return matchName;
     }
@@ -77,12 +82,12 @@ public class Ticket {
         this.matchName = matchName;
     }
 
-    public int getSeatNumber() {
-        return seatNumber;
+    public String getMatchDate() {
+        return matchDate;
     }
 
-    public void setSeatNumber(int seatNumber) {
-        this.seatNumber = seatNumber;
+    public void setMatchDate(String matchDate) {
+        this.matchDate = matchDate;
     }
 
     public String getQrCode() {
@@ -91,6 +96,14 @@ public class Ticket {
 
     public void setQrCode(String qrCode) {
         this.qrCode = qrCode;
+    }
+
+    public Seat getSeat() {
+        return seat;
+    }
+
+    public void setSeat(Seat seat) {
+        this.seat = seat;
     }
 
     public Purchase getPurchase() {

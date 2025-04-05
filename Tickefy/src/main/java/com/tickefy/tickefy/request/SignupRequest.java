@@ -16,20 +16,17 @@ public class SignupRequest {
 
     private String password;
 
-    private Date birthdate;
-
     private String phone;
 
 
     public SignupRequest() {
     }
 
-    public SignupRequest(String f_name, String l_name, String email, String password, Date birthdate, String phone) {
+    public SignupRequest(String f_name, String l_name, String email, String password, String phone) {
         this.f_name = f_name;
         this.l_name = l_name;
         this.email = email;
         this.password = password;
-        this.birthdate = birthdate;
         this.phone = phone;
     }
 
@@ -63,14 +60,6 @@ public class SignupRequest {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public Date getBirthdate() {
-        return birthdate;
-    }
-
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
     }
 
     public String getPhone() {

@@ -1,9 +1,9 @@
-package com.tickefy.stadium_seats.entities;
+package com.tickefy.tickefy.entities;
 
 
-import com.tickefy.stadium_seats.entities.enums.SeatType;
+
+import com.tickefy.tickefy.entities.enums.SeatType;
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.util.UUID;
 
@@ -21,8 +21,8 @@ public class Seat {
 
     private String gate;
 
-    @Enumerated(EnumType.STRING)
-    private SeatType seatType;
+//    @Enumerated(EnumType.STRING)
+//    private SeatType seatType;
 
     private double price;
 
@@ -35,20 +35,18 @@ public class Seat {
     public Seat() {
     }
 
-    public Seat(UUID id, int seatNumber, String gate, SeatType seatType, double price, boolean occupied, Stadium stadium) {
+    public Seat(UUID id, int seatNumber, String gate, double price, boolean occupied, Stadium stadium) {
         this.id = id;
         this.seatNumber = seatNumber;
         this.gate = gate;
-        this.seatType = seatType;
         this.price = price;
         this.occupied = occupied;
         this.stadium = stadium;
     }
 
-    public Seat(int seatNumber, String gate, SeatType seatType, double price, boolean occupied, Stadium stadium) {
+    public Seat(int seatNumber, String gate, double price, boolean occupied, Stadium stadium) {
         this.seatNumber = seatNumber;
         this.gate = gate;
-        this.seatType = seatType;
         this.price = price;
         this.occupied = occupied;
         this.stadium = stadium;
@@ -76,14 +74,6 @@ public class Seat {
 
     public void setGate(String gate) {
         this.gate = gate;
-    }
-
-    public SeatType getSeatType() {
-        return seatType;
-    }
-
-    public void setSeatType(SeatType seatType) {
-        this.seatType = seatType;
     }
 
     public double getPrice() {

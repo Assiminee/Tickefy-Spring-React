@@ -1,4 +1,4 @@
-package com.tickefy.stadium_seats.entities.enums;
+package com.tickefy.tickefy.entities.enums;
 
 public enum SeatType {
 

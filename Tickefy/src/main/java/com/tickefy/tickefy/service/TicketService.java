@@ -10,7 +10,8 @@ import java.util.List;
 @Service
 public interface TicketService {
 
-    public Purchase createPurchase(String jwt, String matchName, int seatNumber, double price);
+    public Purchase createPurchase(String jwt, String matchName, String matchDate, int seatNumber,
+                                   String venueName, String venueCity);
 
     public List<Ticket> getClientTickets(String jwt);
 
