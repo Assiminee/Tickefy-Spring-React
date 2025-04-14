@@ -57,7 +57,6 @@ public class AuthController {
             , @RequestParam("email") String email
             , @RequestParam("password") String password
             , @RequestParam("phone") String phone
-            , @RequestParam(name = "facePhoto",required = false) MultipartFile facePhoto
     )
     {
 

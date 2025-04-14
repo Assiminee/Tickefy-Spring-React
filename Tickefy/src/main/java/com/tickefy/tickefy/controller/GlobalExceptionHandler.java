@@ -2,6 +2,7 @@ package com.tickefy.tickefy.controller;
 
 
 
+import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.exceptions.UnauthorizedException;
@@ -29,6 +30,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleConflictException(ConflictException ex) {
         System.out.println(ex.getMessage());
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleBadRequestException(BadRequestException ex) {
+        System.out.println(ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
