@@ -24,7 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.Date;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/auth")
@@ -57,6 +57,8 @@ public class AuthController {
             , @RequestParam("email") String email
             , @RequestParam("password") String password
             , @RequestParam("phone") String phone
+            , @RequestParam("birthdate") Date birthdate
+
     )
     {
 
@@ -71,6 +73,7 @@ public class AuthController {
             newUser.setF_name(f_name);
             newUser.setL_name(l_name);
             newUser.setPhone(phone);
+            newUser.setBirthdate(birthdate);
             newUser.setRole(Role.ROLE_CLIENT);
             newUser.setFlagged(false);
             newUser.setPassword(passwordEncoder.encode(password));
