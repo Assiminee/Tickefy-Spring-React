@@ -36,8 +36,8 @@ public class AppConfig {
                 )
                 .addFilterBefore(new JwtTokenValidator() , BasicAuthenticationFilter.class)
                 .csrf(csrf->csrf.disable())
-                //.cors(cors->cors.configurationSource(corsConfigurationSource()))
-                .cors(cors->cors.disable())
+                .cors(cors->cors.configurationSource(corsConfigurationSource()))
+                // .cors(cors->cors.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());
 
@@ -55,13 +55,19 @@ public class AppConfig {
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 // TODO Auto-generated method stub
                 CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowedOrigins(Arrays.asList(
-                        "http://localhost:5173",
-                        "http://spring-app:5001"
-                ));
+                // cfg.setAllowedOrigins(Arrays.asList(
+                //         "http://localhost:5173",
+                //         "http://spring-app:5001"
+                // ));
+                // cfg.setAllowedMethods(Collections.singletonList("*"));
+                // cfg.setAllowCredentials(true);
+                // cfg.setAllowedHeaders(Collections.singletonList("*"));
+                // cfg.setExposedHeaders(Arrays.asList("Authorization"));
+                // cfg.setMaxAge(3600L);
+                cfg.setAllowedOriginPatterns(Collections.singletonList("*"));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
-                cfg.setAllowCredentials(true);
                 cfg.setAllowedHeaders(Collections.singletonList("*"));
+                cfg.setAllowCredentials(true);
                 cfg.setExposedHeaders(Arrays.asList("Authorization"));
                 cfg.setMaxAge(3600L);
                 return cfg;
