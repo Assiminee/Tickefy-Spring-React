@@ -27,8 +27,8 @@ public class User {
 
     private String password;
 
-    @Temporal(TemporalType.DATE)
-    private Date birthdate;
+
+    private String birthdate;
 
     private String phone;
 
@@ -45,7 +45,7 @@ public class User {
     public User() {
     }
 
-    public User(UUID id, String f_name, String l_name, String email, String password, Date birthdate, String phone, Role role, String profile_picture) {
+    public User(UUID id, String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture) {
         this.id = id;
         this.f_name = f_name;
         this.l_name = l_name;
@@ -57,7 +57,7 @@ public class User {
         this.profile_picture = profile_picture;
     }
 
-    public User(String f_name, String l_name, String email, String password, Date birthdate, String phone, Role role, String profile_picture) {
+    public User(String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture) {
         this.f_name = f_name;
         this.l_name = l_name;
         this.email = email;
@@ -108,11 +108,11 @@ public class User {
         this.password = password;
     }
 
-    public Date getBirthdate() {
+    public String getBirthdate() {
         return birthdate;
     }
 
-    public void setBirthdate(Date birthdate) {
+    public void setBirthdate(String birthdate) {
         this.birthdate = birthdate;
     }
 

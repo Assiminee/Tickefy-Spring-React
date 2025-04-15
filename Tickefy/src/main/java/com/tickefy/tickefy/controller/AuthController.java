@@ -57,7 +57,7 @@ public class AuthController {
             , @RequestParam("email") String email
             , @RequestParam("password") String password
             , @RequestParam("phone") String phone
-            , @RequestParam("birthdate") Date birthdate
+            , @RequestParam("birthdate") String birthdate
 
     )
     {
