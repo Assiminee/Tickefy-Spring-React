@@ -55,7 +55,7 @@ public class AppConfig {
                 // TODO Auto-generated method stub
                 CorsConfiguration cfg = new CorsConfiguration();
                 cfg.setAllowedOrigins(Arrays.asList(
-                        "http://frontend:5173"
+                        "http://localhost:5173"
                 ));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowCredentials(true);
