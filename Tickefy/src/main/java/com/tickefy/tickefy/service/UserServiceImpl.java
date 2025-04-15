@@ -5,6 +5,7 @@ import com.tickefy.tickefy.config.JwtProvider;
 import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.User;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
+import com.tickefy.tickefy.repository.ClientRepository;
 import com.tickefy.tickefy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,15 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    private final ClientRepository clientRepository;
+
     private final String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/images";
 
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, ClientRepository clientRepository) {
         this.userRepository = userRepository;
+        this.clientRepository = clientRepository;
     }
 
     @Override
@@ -151,7 +155,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(UUID userId) {
-        return userRepository.findById(userId).orElse(null);
+    public Client getUserById(UUID userId) {
+
+        Client client =  clientRepository.findById(userId).orElse(null);
+
+        if (client == null) {
+            throw new ResourceNotFoundException("Client not found");
+        }
+        return client;
     }
 }

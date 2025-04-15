@@ -22,5 +22,5 @@ public interface UserService {
 
     public void deleteUser(String jwt) throws ResourceNotFoundException;
 
-    public User getUserById(UUID userId);
+    public Client getUserById(UUID userId);
 }

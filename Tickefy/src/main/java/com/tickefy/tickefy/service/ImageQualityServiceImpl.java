@@ -36,6 +36,7 @@ public class ImageQualityServiceImpl implements ImageQualityService {
 
             ResponseEntity<Map> response = restTemplate.postForEntity(url, requestEntity, Map.class);
             return Boolean.TRUE.equals(Objects.requireNonNull(response.getBody()).get("is_image_valid"));
+            // should return the python image error here
 
         } catch (Exception e) {
             e.printStackTrace();
