@@ -22,7 +22,7 @@ public class ImageQualityServiceImpl implements ImageQualityService {
     @Override
     public boolean assessImageQuality(UUID userId, MultipartFile imageFile) {
         try {
-            String url = "http://localhost:8000/api/v1/users/" + userId + "/assess_image_quality";
+            String url = "http://python-app:8000/api/v1/users/" + userId + "/assess_image_quality";
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
