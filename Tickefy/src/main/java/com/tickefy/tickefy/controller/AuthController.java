@@ -78,6 +78,8 @@ public class AuthController {
             newUser.setFlagged(false);
             newUser.setPassword(passwordEncoder.encode(password));
 
+            newUser.setHasImage(false); // user doesnt have an image yet
+
             userRepository.save(newUser);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(email , password);

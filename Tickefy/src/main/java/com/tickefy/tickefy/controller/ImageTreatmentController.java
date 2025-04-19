@@ -3,6 +3,7 @@ package com.tickefy.tickefy.controller;
 
 import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.Purchase;
+import com.tickefy.tickefy.repository.ClientRepository;
 import com.tickefy.tickefy.service.ImageQualityService;
 import com.tickefy.tickefy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,16 @@ public class ImageTreatmentController {
 
     private final UserService userService;
 
+    private final ClientRepository clientRepository;
+
     private final ImageQualityService imageQualityService;
 
 
     @Autowired
-    public ImageTreatmentController(UserService userService, ImageQualityService imageQualityService) {
+    public ImageTreatmentController(UserService userService, ImageQualityService imageQualityService, ClientRepository clientRepository) {
         this.userService = userService;
         this.imageQualityService = imageQualityService;
+        this.clientRepository = clientRepository;
     }
 
     @PostMapping
@@ -49,6 +53,9 @@ public class ImageTreatmentController {
                         .badRequest()
                         .body("Image quality is too low for facial recognition. Please upload a clearer image.");
             }
+            loggedUser.setHasImage(true);  // user gave us his image
+            clientRepository.save(loggedUser);
+
 
             return ResponseEntity.ok("Image quality validated.");
         } catch (Exception e) {

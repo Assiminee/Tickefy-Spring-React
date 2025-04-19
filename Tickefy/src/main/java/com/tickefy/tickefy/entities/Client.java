@@ -17,22 +17,26 @@ public class Client extends User {
 
     private boolean flagged;
 
+    private boolean hasImage;
+
 
     public Client(String nationality, boolean flagged) {
         this.nationality = nationality;
         this.flagged = flagged;
     }
 
-    public Client(UUID id, String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture, String nationality, boolean flagged) {
+    public Client(UUID id, String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture, String nationality, boolean flagged,boolean hasImage) {
         super(id, f_name, l_name, email, password, birthdate, phone, role, profile_picture);
         this.nationality = nationality;
         this.flagged = flagged;
+        this.hasImage = hasImage;
     }
 
-    public Client(String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture, String nationality, boolean flagged) {
+    public Client(String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture, String nationality, boolean flagged,boolean hasImage) {
         super(f_name, l_name, email, password, birthdate, phone, role, profile_picture);
         this.nationality = nationality;
         this.flagged = flagged;
+        this.hasImage = hasImage;
     }
 
     public Client() {
@@ -53,5 +57,13 @@ public class Client extends User {
 
     public void setFlagged(boolean flagged) {
         this.flagged = flagged;
+    }
+
+    public boolean isHasImage() {
+        return hasImage;
+    }
+
+    public void setHasImage(boolean hasImage) {
+        this.hasImage = hasImage;
     }
 }

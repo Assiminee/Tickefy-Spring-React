@@ -65,6 +65,9 @@ public class UserController {
 	public ResponseEntity<List<User>> getUsers (@RequestHeader("Authorization") String jwt){
 
 		List<User> users = userService.getAllUsers();
+        for(User user : users){
+            user.setPassword("");
+        }
 
 		return new ResponseEntity<>(users , HttpStatus.OK);
 	}
@@ -128,12 +131,5 @@ public class UserController {
 
     }
 
-    @GetMapping("/{userId}") // to fetch the client's info after the facial recognition
-    public ResponseEntity<Client> getClientFromId (@PathVariable UUID userId){
 
-         Client client = userService.getUserById(userId);
-         client.setPassword("");
-
-        return new ResponseEntity<>(client , HttpStatus.OK);
-    }
 }

@@ -39,7 +39,7 @@ public class TicketServiceImpl implements TicketService {
 
 
     @Override
-    public Purchase createPurchase(String jwt, String matchName, String matchDate, int seatNumber,
+    public Ticket createPurchase(String jwt, String matchName, String matchDate, int seatNumber,
                                    String venueName, String venueCity) {
 
         Client client = (Client) userService.getProfile(jwt);
@@ -95,7 +95,7 @@ public class TicketServiceImpl implements TicketService {
         purchaseRepository.save(purchase);
         ticketRepository.save(ticket);
 
-        return purchase;
+        return ticket;
     }
 
     @Override
