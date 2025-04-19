@@ -2,6 +2,7 @@ package com.tickefy.tickefy.service;
 
 
 import com.tickefy.tickefy.entities.*;
+import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.repository.PurchaseRepository;
 import com.tickefy.tickefy.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,5 +107,16 @@ public class TicketServiceImpl implements TicketService {
 
         // Fetch tickets where the purchase belongs to the logged-in client
         return ticketRepository.findByPurchase_Client(client);
+    }
+
+    @Override
+    public Ticket getTicketById(String jwt, UUID ticketId) {
+
+        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+
+        if (ticket == null) {
+            throw new ResourceNotFoundException("Ticket not found");
+        }
+        return ticket;
     }
 }

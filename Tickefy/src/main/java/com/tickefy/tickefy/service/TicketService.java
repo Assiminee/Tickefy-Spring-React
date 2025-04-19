@@ -6,6 +6,7 @@ import com.tickefy.tickefy.entities.Ticket;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public interface TicketService {
@@ -14,5 +15,7 @@ public interface TicketService {
                                    String venueName, String venueCity);
 
     public List<Ticket> getClientTickets(String jwt);
+
+    public Ticket getTicketById(String jwt, UUID ticketId);
 
 }

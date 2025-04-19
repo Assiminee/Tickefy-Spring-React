@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -99,5 +100,15 @@ public class TicketController {
         }
 
         return new ResponseEntity<>(tickets, HttpStatus.OK);
+    }
+
+    @GetMapping("/{ticketId}")
+    public ResponseEntity<Ticket> getTicketById(@RequestHeader("Authorization") String jwt,
+                                                      @PathVariable UUID ticketId) {
+
+        Ticket ticket = ticketService.getTicketById(jwt, ticketId);
+        ticket.getPurchase().getClient().setPassword("");
+
+        return new ResponseEntity<>(ticket, HttpStatus.OK);
     }
 }
