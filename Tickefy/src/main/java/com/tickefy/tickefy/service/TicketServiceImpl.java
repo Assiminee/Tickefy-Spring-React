@@ -2,6 +2,7 @@ package com.tickefy.tickefy.service;
 
 
 import com.tickefy.tickefy.entities.*;
+import com.tickefy.tickefy.entities.enums.CardType;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.repository.PurchaseRepository;
 import com.tickefy.tickefy.repository.TicketRepository;
@@ -41,7 +42,9 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Ticket createPurchase(String jwt, String matchName, String matchDate, int seatNumber,
-                                   String venueName, String venueCity) {
+                                   String venueName, String venueCity,String cardType,
+                                 String cardNumber, String cardHolderName, String ExpirationDate,
+                                 String cvvCode ) {
 
         Client client = (Client) userService.getProfile(jwt);
 
@@ -84,6 +87,11 @@ public class TicketServiceImpl implements TicketService {
         purchase.setClient(client);
         purchase.setAmount(1); // Single ticket purchase
         purchase.setTotalPrice(seat.getPrice());
+        purchase.setCardType(CardType.valueOf(cardType));
+        purchase.setCardNumber(cardNumber);
+        purchase.setCardHolderName(cardHolderName);
+        purchase.setExpirationDate(ExpirationDate);
+        purchase.setCvvCode(cvvCode);
         purchase.setTickets(Collections.singletonList(ticket));
 
         // Set ticket purchase reference

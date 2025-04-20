@@ -12,7 +12,9 @@ import java.util.UUID;
 public interface TicketService {
 
     public Ticket createPurchase(String jwt, String matchName, String matchDate, int seatNumber,
-                                   String venueName, String venueCity);
+                                 String venueName, String venueCity,String cardType,
+                                 String cardNumber, String cardHolderName, String ExpirationDate,
+                                 String cvvCode );
 
     public List<Ticket> getClientTickets(String jwt);
 

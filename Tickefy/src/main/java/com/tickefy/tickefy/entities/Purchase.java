@@ -2,6 +2,7 @@ package com.tickefy.tickefy.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tickefy.tickefy.entities.enums.CardType;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -15,7 +16,18 @@ public class Purchase {
     private UUID id;
 
     private int amount; // Number of tickets purchased
+
     private double totalPrice;
+
+    private CardType cardType;
+
+    private String cardNumber;
+
+    private String cardHolderName;
+
+    private String expirationDate;
+
+    private String cvvCode;
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
@@ -25,28 +37,35 @@ public class Purchase {
     @JsonIgnore
     private List<Ticket> tickets; // Tickets associated with this purchase
 
-    @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Payment payment; // Associated payment for this purchase
+
 
 
     public Purchase() {
     }
 
-    public Purchase(UUID id, int amount, double totalPrice, Client client, List<Ticket> tickets, Payment payment) {
+    public Purchase(UUID id, int amount, double totalPrice, CardType cardType, String cardNumber, String cardHolderName, String expirationDate, String cvvCode, Client client, List<Ticket> tickets) {
         this.id = id;
         this.amount = amount;
         this.totalPrice = totalPrice;
+        this.cardType = cardType;
+        this.cardNumber = cardNumber;
+        this.cardHolderName = cardHolderName;
+        this.expirationDate = expirationDate;
+        this.cvvCode = cvvCode;
         this.client = client;
         this.tickets = tickets;
-        this.payment = payment;
     }
 
-    public Purchase(int amount, double totalPrice, Client client, List<Ticket> tickets, Payment payment) {
+    public Purchase(int amount, double totalPrice, CardType cardType, String cardNumber, String cardHolderName, String expirationDate, String cvvCode, Client client, List<Ticket> tickets) {
         this.amount = amount;
         this.totalPrice = totalPrice;
+        this.cardType = cardType;
+        this.cardNumber = cardNumber;
+        this.cardHolderName = cardHolderName;
+        this.expirationDate = expirationDate;
+        this.cvvCode = cvvCode;
         this.client = client;
         this.tickets = tickets;
-        this.payment = payment;
     }
 
     public UUID getId() {
@@ -89,11 +108,43 @@ public class Purchase {
         this.tickets = tickets;
     }
 
-    public Payment getPayment() {
-        return payment;
+    public CardType getCardType() {
+        return cardType;
     }
 
-    public void setPayment(Payment payment) {
-        this.payment = payment;
+    public void setCardType(CardType cardType) {
+        this.cardType = cardType;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public String getCardHolderName() {
+        return cardHolderName;
+    }
+
+    public void setCardHolderName(String cardHolderName) {
+        this.cardHolderName = cardHolderName;
+    }
+
+    public String getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    public String getCvvCode() {
+        return cvvCode;
+    }
+
+    public void setCvvCode(String cvvCode) {
+        this.cvvCode = cvvCode;
     }
 }

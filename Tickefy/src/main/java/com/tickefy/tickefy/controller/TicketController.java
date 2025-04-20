@@ -50,39 +50,22 @@ public class TicketController {
                                               @RequestParam("seatNumber") int seatNumber,
                                               @RequestParam("VenueName") String VenueName,
                                               @RequestParam("VenueCity") String VenueCity,
-                                              @RequestParam(name = "facePhoto",required = false) MultipartFile facePhoto) {
+                                              @RequestParam("cardType") String cardType,
+                                              @RequestParam("cardNumber") String cardNumber,
+                                              @RequestParam("cardHolderName") String cardHolderName,
+                                              @RequestParam("expirationDate") String expirationDate,
+                                              @RequestParam("cvvCode") String cvvCode) {
         try{
 
             String matchName = homeTeamName+" VS "+awayTeamName;
 
-
             // Get the logged-in user
             Client loggedUser = (Client) userService.getProfile(jwt);
 
-            Ticket ticket = null;
 
-            if (facePhoto == null || facePhoto.isEmpty()) {
-
-                ticket = ticketService.createPurchase(jwt,matchName, matchDate, seatNumber,VenueName,VenueCity);
-                ticket.getPurchase().getClient().setPassword("");
-
-                return new ResponseEntity<>(ticket, HttpStatus.CREATED);
-            }
-
-            boolean isImageValid = imageQualityService.assessImageQuality(loggedUser.getId(), facePhoto);
-
-            if (!isImageValid) {
-                return ResponseEntity
-                        .badRequest()
-                        .body("Image quality is too low for facial recognition. Please upload a clearer image.");
-            }
-
-            loggedUser.setHasImage(true);  // user gave us his image
-            clientRepository.save(loggedUser);
-
-            ticket = ticketService.createPurchase(jwt,matchName, matchDate, seatNumber,VenueName,VenueCity);
+           Ticket ticket = ticketService.createPurchase(jwt,matchName, matchDate, seatNumber,VenueName,VenueCity,
+                    cardType,cardNumber,cardHolderName,expirationDate,cvvCode);
             ticket.getPurchase().getClient().setPassword("");
-
 
             return new ResponseEntity<>(ticket, HttpStatus.CREATED);
         } catch(Exception e){
