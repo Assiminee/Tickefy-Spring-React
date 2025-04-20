@@ -19,7 +19,7 @@ public class Purchase {
 
     private double totalPrice;
 
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     private CardType cardType;
 
     private String cardNumber;
