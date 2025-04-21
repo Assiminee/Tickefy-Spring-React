@@ -7,6 +7,7 @@ import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.repository.PurchaseRepository;
 import com.tickefy.tickefy.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,15 +29,18 @@ public class TicketServiceImpl implements TicketService {
 
     private final SeatService seatService;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
     public TicketServiceImpl(UserService userService, TicketRepository ticketRepository,
                              PurchaseRepository purchaseRepository, StadiumService stadiumService,
-                             SeatService seatService) {
+                             SeatService seatService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.ticketRepository = ticketRepository;
         this.purchaseRepository = purchaseRepository;
         this.stadiumService = stadiumService;
         this.seatService = seatService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -87,11 +91,6 @@ public class TicketServiceImpl implements TicketService {
         purchase.setClient(client);
         purchase.setAmount(1); // Single ticket purchase
         purchase.setTotalPrice(seat.getPrice());
-        purchase.setCardType(CardType.valueOf(cardType));
-        purchase.setCardNumber(cardNumber);
-        purchase.setCardHolderName(cardHolderName);
-        purchase.setExpirationDate(ExpirationDate);
-        purchase.setCvvCode(cvvCode);
         purchase.setTickets(Collections.singletonList(ticket));
 
         // Set ticket purchase reference

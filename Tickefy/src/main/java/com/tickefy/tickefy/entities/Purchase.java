@@ -19,16 +19,7 @@ public class Purchase {
 
     private double totalPrice;
 
-    @Enumerated(EnumType.STRING)
-    private CardType cardType;
 
-    private String cardNumber;
-
-    private String cardHolderName;
-
-    private String expirationDate;
-
-    private String cvvCode;
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
@@ -44,27 +35,17 @@ public class Purchase {
     public Purchase() {
     }
 
-    public Purchase(UUID id, int amount, double totalPrice, CardType cardType, String cardNumber, String cardHolderName, String expirationDate, String cvvCode, Client client, List<Ticket> tickets) {
+    public Purchase(UUID id, int amount, double totalPrice, Client client, List<Ticket> tickets) {
         this.id = id;
         this.amount = amount;
         this.totalPrice = totalPrice;
-        this.cardType = cardType;
-        this.cardNumber = cardNumber;
-        this.cardHolderName = cardHolderName;
-        this.expirationDate = expirationDate;
-        this.cvvCode = cvvCode;
         this.client = client;
         this.tickets = tickets;
     }
 
-    public Purchase(int amount, double totalPrice, CardType cardType, String cardNumber, String cardHolderName, String expirationDate, String cvvCode, Client client, List<Ticket> tickets) {
+    public Purchase(int amount, double totalPrice, Client client, List<Ticket> tickets) {
         this.amount = amount;
         this.totalPrice = totalPrice;
-        this.cardType = cardType;
-        this.cardNumber = cardNumber;
-        this.cardHolderName = cardHolderName;
-        this.expirationDate = expirationDate;
-        this.cvvCode = cvvCode;
         this.client = client;
         this.tickets = tickets;
     }
@@ -109,43 +90,5 @@ public class Purchase {
         this.tickets = tickets;
     }
 
-    public CardType getCardType() {
-        return cardType;
-    }
 
-    public void setCardType(CardType cardType) {
-        this.cardType = cardType;
-    }
-
-    public String getCardNumber() {
-        return cardNumber;
-    }
-
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
-    }
-
-    public String getCardHolderName() {
-        return cardHolderName;
-    }
-
-    public void setCardHolderName(String cardHolderName) {
-        this.cardHolderName = cardHolderName;
-    }
-
-    public String getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
-    public String getCvvCode() {
-        return cvvCode;
-    }
-
-    public void setCvvCode(String cvvCode) {
-        this.cvvCode = cvvCode;
-    }
 }

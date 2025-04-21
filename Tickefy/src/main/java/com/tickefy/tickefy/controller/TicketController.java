@@ -27,19 +27,13 @@ public class TicketController {
 
     private final UserService userService;
 
-    private final ClientRepository clientRepository;
-
     private final TicketService ticketService;
 
-    private final ImageQualityService imageQualityService;
 
     @Autowired
-    public TicketController(TicketService ticketService, UserService userService,
-                            ClientRepository clientRepository,ImageQualityService imageQualityService) {
+    public TicketController(TicketService ticketService, UserService userService) {
         this.ticketService = ticketService;
         this.userService = userService;
-        this.clientRepository = clientRepository;
-        this.imageQualityService = imageQualityService;
     }
 
     @PostMapping
@@ -65,6 +59,7 @@ public class TicketController {
 
            Ticket ticket = ticketService.createPurchase(jwt,matchName, matchDate, seatNumber,VenueName,VenueCity,
                     cardType,cardNumber,cardHolderName,expirationDate,cvvCode);
+
             ticket.getPurchase().getClient().setPassword("");
 
             return new ResponseEntity<>(ticket, HttpStatus.CREATED);
