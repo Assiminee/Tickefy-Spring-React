@@ -34,4 +34,4 @@ public class MobileController {
         return new ResponseEntity<>(fullName , HttpStatus.OK);
     }
 }
-}
+
