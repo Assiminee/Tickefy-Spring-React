@@ -2,6 +2,7 @@ package com.tickefy.tickefy.controller;
 
 
 import com.tickefy.tickefy.entities.Client;
+import com.tickefy.tickefy.entities.dto.JsonResponseDTO;
 import com.tickefy.tickefy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,8 +31,10 @@ public class MobileController {
 
         Client client = userService.getUserById(userId);
         String fullName = client.getF_name() +" "+ client.getL_name();
+         JsonResponseDTO jsonResponseDTO = new JsonResponseDTO();
+         jsonResponseDTO.setFullName(fullName);
 
-        return new ResponseEntity<>(fullName , HttpStatus.OK);
+        return new ResponseEntity<>(jsonResponseDTO , HttpStatus.OK);
     }
 }
 
