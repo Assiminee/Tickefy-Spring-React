@@ -25,12 +25,13 @@ public class MobileController {
         this.userService = userService;
     }
 
-    @GetMapping("/{userId}") // to fetch the client's info after the facial recognition
-    public ResponseEntity<Client> getClientFromId (@PathVariable UUID userId){
+     @GetMapping("/{userId}") // to fetch the client's info after the facial recognition
+    public ResponseEntity<?> getClientFromId (@PathVariable UUID userId){
 
         Client client = userService.getUserById(userId);
-        client.setPassword("");
+        String fullName = client.getF_name() +" "+ client.getL_name();
 
-        return new ResponseEntity<>(client , HttpStatus.OK);
+        return new ResponseEntity<>(fullName , HttpStatus.OK);
     }
+}
 }
