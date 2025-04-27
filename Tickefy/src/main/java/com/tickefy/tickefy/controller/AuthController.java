@@ -66,6 +66,7 @@ public class AuthController {
             throw new ConflictException("Email already exists");
 
         try {
+
             //create new Client
             Client newUser = new Client();
 

@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,26 +31,21 @@ public class TicketServiceImpl implements TicketService {
 
     private final SeatService seatService;
 
-    private final PasswordEncoder passwordEncoder;
-
     @Autowired
     public TicketServiceImpl(UserService userService, TicketRepository ticketRepository,
                              PurchaseRepository purchaseRepository, StadiumService stadiumService,
-                             SeatService seatService, PasswordEncoder passwordEncoder) {
+                             SeatService seatService) {
         this.userService = userService;
         this.ticketRepository = ticketRepository;
         this.purchaseRepository = purchaseRepository;
         this.stadiumService = stadiumService;
         this.seatService = seatService;
-        this.passwordEncoder = passwordEncoder;
     }
 
 
     @Override
-    public Ticket createPurchase(String jwt, String matchName, String matchDate, int seatNumber,
-                                   String venueName, String venueCity,String cardType,
-                                 String cardNumber, String cardHolderName, String ExpirationDate,
-                                 String cvvCode ) {
+    public Ticket createPurchase(String jwt, String matchName, LocalDate matchDate, int seatNumber,
+                                 String venueName, String venueCity ) {
 
         Client client = (Client) userService.getProfile(jwt);
 
@@ -125,5 +122,12 @@ public class TicketServiceImpl implements TicketService {
             throw new ResourceNotFoundException("Ticket not found");
         }
         return ticket;
+    }
+
+    @Override
+    public Optional<Ticket> findTodayTicketByClient(UUID clientId) {
+
+        LocalDate today = LocalDate.now();
+        return ticketRepository.findByPurchase_Client_IdAndMatchDate(clientId, today);
     }
 }

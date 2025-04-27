@@ -2,12 +2,16 @@ package com.tickefy.tickefy.controller;
 
 
 import com.tickefy.tickefy.entities.Client;
+import com.tickefy.tickefy.entities.Ticket;
 import com.tickefy.tickefy.entities.User;
+import com.tickefy.tickefy.entities.dto.FullNameDTO;
 import com.tickefy.tickefy.entities.dto.UserDTO;
 import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.exceptions.UnauthorizedException;
 import com.tickefy.tickefy.repository.UserRepository;
+import com.tickefy.tickefy.service.FacialRecognitionService;
+import com.tickefy.tickefy.service.TicketService;
 import com.tickefy.tickefy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,23 +22,35 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
 
-    private PasswordEncoder passwordEncoder;
+    private final TicketService ticketService;
 
-    private UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    private final UserRepository userRepository;
+
+    private final FacialRecognitionService facialRecognitionService;
+
 
     @Autowired
-    public UserController(UserService userService, PasswordEncoder passwordEncoder, UserRepository userRepository) {
+    public UserController(UserService userService,TicketService ticketService,
+                          PasswordEncoder passwordEncoder,
+                          UserRepository userRepository,
+                          FacialRecognitionService facialRecognitionService) {
         this.userService = userService;
+        this.ticketService = ticketService;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.facialRecognitionService = facialRecognitionService;
     }
 
 
@@ -131,5 +147,49 @@ public class UserController {
 
     }
 
+    @PostMapping("/identify")
+    public ResponseEntity<?> identifyClient (@RequestHeader("Authorization") String jwt,
+                                              @RequestParam(name = "facePhoto") MultipartFile facePhoto){
 
+        try {
+
+            // Check if face image is provided
+            if (facePhoto == null || facePhoto.isEmpty()) {
+                return ResponseEntity
+                        .badRequest()
+                        .body("Face image is required");
+            }
+
+            Map<String, Object> response = facialRecognitionService.identifyClient(facePhoto);
+
+            boolean identified = (Boolean) response.get("identified");
+            String clientIdStr = (String) response.get("message");
+
+            if (!identified) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Face could not be identified. Please try again.");
+            }
+
+            UUID clientId = UUID.fromString(clientIdStr);
+
+            Optional<Ticket> ticketOpt = ticketService.findTodayTicketByClient(clientId);
+
+            if (ticketOpt.isPresent()) {
+                Ticket ticket = ticketOpt.get();
+                String firstName = ticket.getPurchase().getClient().getF_name();
+                String lastName = ticket.getPurchase().getClient().getL_name();
+                FullNameDTO fullNameDTO = new FullNameDTO(firstName+ " " + lastName);
+
+                return ResponseEntity.ok(fullNameDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No ticket found for today for this client.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred during client identification: " + e.getMessage());
+        }
+    }
 }

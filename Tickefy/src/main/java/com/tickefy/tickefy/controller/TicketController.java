@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +43,7 @@ public class TicketController {
     public ResponseEntity<?> buyTicket(@RequestHeader("Authorization") String jwt,
                                               @RequestParam("homeTeamName") String homeTeamName,
                                               @RequestParam("awayTeamName") String awayTeamName,
-                                              @RequestParam("matchDate") String matchDate,
+                                              @RequestParam("matchDate") String matchDateString,
                                               @RequestParam("seatNumber") int seatNumber,
                                               @RequestParam("VenueName") String VenueName,
                                               @RequestParam("VenueCity") String VenueCity,
@@ -53,12 +56,24 @@ public class TicketController {
 
             String matchName = homeTeamName+" VS "+awayTeamName;
 
+            // Example: matchDateString = "25/04/2025"
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            LocalDate matchDate;
+            try {
+                matchDate = LocalDate.parse(matchDateString, formatter);
+            } catch (DateTimeParseException e) {
+                System.out.println(e.getMessage());
+                return ResponseEntity
+                        .badRequest()
+                        .body("Invalid match date format. Please use DD/MM/YYYY.");
+            }
+
             // Get the logged-in user
             Client loggedUser = (Client) userService.getProfile(jwt);
 
 
-           Ticket ticket = ticketService.createPurchase(jwt,matchName, matchDate, seatNumber,VenueName,VenueCity,
-                    cardType,cardNumber,cardHolderName,expirationDate,cvvCode);
+           Ticket ticket = ticketService.createPurchase(jwt,matchName, matchDate, seatNumber,VenueName,VenueCity);
 
             ticket.getPurchase().getClient().setPassword("");
 

@@ -2,7 +2,6 @@ package com.tickefy.tickefy.controller;
 
 
 import com.tickefy.tickefy.entities.Client;
-import com.tickefy.tickefy.entities.dto.JsonResponseDTO;
 import com.tickefy.tickefy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("/mobile/users")
+@RequestMapping("/api/mobile")
 public class MobileController {
 
 
@@ -26,15 +25,6 @@ public class MobileController {
         this.userService = userService;
     }
 
-     @GetMapping("/{userId}") // to fetch the client's info after the facial recognition
-    public ResponseEntity<?> getClientFromId (@PathVariable UUID userId){
 
-        Client client = userService.getUserById(userId);
-        String fullName = client.getF_name() +" "+ client.getL_name();
-         JsonResponseDTO jsonResponseDTO = new JsonResponseDTO();
-         jsonResponseDTO.setFullName(fullName);
-
-        return new ResponseEntity<>(jsonResponseDTO , HttpStatus.OK);
-    }
 }
 

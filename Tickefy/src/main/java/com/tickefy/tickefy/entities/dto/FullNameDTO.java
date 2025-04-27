@@ -1,8 +1,15 @@
 package com.tickefy.tickefy.entities.dto;
 
-public class JsonResponseDTO {
+public class FullNameDTO {
 
     private String fullName;
+
+    public FullNameDTO() {
+    }
+
+    public FullNameDTO(String fullName) {
+        this.fullName = fullName;
+    }
 
     public String getFullName() {
         return fullName;
