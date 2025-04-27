@@ -155,9 +155,8 @@ public class UserController {
 
             // Check if face image is provided
             if (facePhoto == null || facePhoto.isEmpty()) {
-                return ResponseEntity
-                        .badRequest()
-                        .body("Face image is required");
+                return new ResponseEntity<>("Face image is required",
+                        HttpStatus.BAD_REQUEST);
             }
 
             Map<String, Object> response = facialRecognitionService.identifyClient(facePhoto);
@@ -166,8 +165,8 @@ public class UserController {
             String clientIdStr = (String) response.get("message");
 
             if (!identified) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Face could not be identified. Please try again.");
+                return new ResponseEntity<>("Face could not be identified. Please try again.",
+                        HttpStatus.BAD_REQUEST);
             }
 
             UUID clientId = UUID.fromString(clientIdStr);
@@ -178,18 +177,19 @@ public class UserController {
                 Ticket ticket = ticketOpt.get();
                 String firstName = ticket.getPurchase().getClient().getF_name();
                 String lastName = ticket.getPurchase().getClient().getL_name();
+
                 FullNameDTO fullNameDTO = new FullNameDTO(firstName+ " " + lastName);
 
-                return ResponseEntity.ok(fullNameDTO);
+                return new ResponseEntity<>(fullNameDTO, HttpStatus.OK);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No ticket found for today for this client.");
+                return new ResponseEntity<>("No ticket found for today for this client."
+                        ,HttpStatus.NOT_FOUND);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred during client identification: " + e.getMessage());
+            return new ResponseEntity<>("An error occurred during client identification: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -40,6 +40,7 @@ public class FacialRecognitionServiceImpl implements FacialRecognitionService {
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody();
             } else {
+                System.out.println(response.getStatusCode() + "Failed to identify client with the face image.");
                 throw new Exception("Failed to identify client with the face image.");
             }
         } catch (Exception e) {
