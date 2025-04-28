@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -57,16 +58,16 @@ public class TicketController {
             String matchName = homeTeamName+" VS "+awayTeamName;
 
             // Example: matchDateString = "25/04/2025"
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
-            LocalDate matchDate;
+            LocalDateTime matchDate;
             try {
-                matchDate = LocalDate.parse(matchDateString, formatter);
+                matchDate = LocalDateTime.parse(matchDateString, formatter);
             } catch (DateTimeParseException e) {
                 System.out.println(e.getMessage());
                 return ResponseEntity
                         .badRequest()
-                        .body("Invalid match date format. Please use DD/MM/YYYY.");
+                        .body("Invalid match date format. Please use yyyy-MM-dd'T'HH:mm.");
             }
 
             // Get the logged-in user

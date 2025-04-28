@@ -24,7 +24,7 @@ public class Ticket {
 
     private String matchName;
 
-    private LocalDate matchDate;
+    private LocalDateTime matchDate;
 
     private String qrCode; // Unique QR code for entry verification
 
@@ -40,7 +40,7 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(UUID id, LocalDateTime purchaseDate, String matchName, LocalDate matchDate, String qrCode, Seat seat, Purchase purchase) {
+    public Ticket(UUID id, LocalDateTime purchaseDate, String matchName, LocalDateTime matchDate, String qrCode, Seat seat, Purchase purchase) {
         this.id = id;
         this.purchaseDate = purchaseDate;
         this.matchName = matchName;
@@ -50,7 +50,7 @@ public class Ticket {
         this.purchase = purchase;
     }
 
-    public Ticket(LocalDateTime purchaseDate, String matchName, LocalDate matchDate, String qrCode, Seat seat, Purchase purchase) {
+    public Ticket(LocalDateTime purchaseDate, String matchName, LocalDateTime matchDate, String qrCode, Seat seat, Purchase purchase) {
         this.purchaseDate = purchaseDate;
         this.matchName = matchName;
         this.matchDate = matchDate;
@@ -83,11 +83,11 @@ public class Ticket {
         this.matchName = matchName;
     }
 
-    public LocalDate getMatchDate() {
+    public LocalDateTime getMatchDate() {
         return matchDate;
     }
 
-    public void setMatchDate(LocalDate matchDate) {
+    public void setMatchDate(LocalDateTime matchDate) {
         this.matchDate = matchDate;
     }
 

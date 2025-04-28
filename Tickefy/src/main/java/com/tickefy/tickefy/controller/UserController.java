@@ -171,7 +171,7 @@ public class UserController {
 
             UUID clientId = UUID.fromString(clientIdStr);
 
-            Optional<Ticket> ticketOpt = ticketService.findTodayTicketByClient(clientId);
+            Optional<Ticket> ticketOpt = ticketService.findTodayWithTimeTicketByClient(clientId);
 
             if (ticketOpt.isPresent()) {
                 Ticket ticket = ticketOpt.get();

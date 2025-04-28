@@ -18,4 +18,5 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
 
     Optional<Ticket> findByPurchase_Client_IdAndMatchDate(UUID clientId, LocalDate matchDate);
 
+    Optional<Ticket> findFirstByPurchase_Client_IdOrderByMatchDateAsc(UUID clientId);
 }

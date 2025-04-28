@@ -44,7 +44,7 @@ public class TicketServiceImpl implements TicketService {
 
 
     @Override
-    public Ticket createPurchase(String jwt, String matchName, LocalDate matchDate, int seatNumber,
+    public Ticket createPurchase(String jwt, String matchName, LocalDateTime matchDate, int seatNumber,
                                  String venueName, String venueCity ) {
 
         Client client = (Client) userService.getProfile(jwt);
@@ -129,5 +129,30 @@ public class TicketServiceImpl implements TicketService {
 
         LocalDate today = LocalDate.now();
         return ticketRepository.findByPurchase_Client_IdAndMatchDate(clientId, today);
+    }
+
+    public Optional<Ticket> findTodayWithTimeTicketByClient(UUID clientId) {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // Retrieve all tickets of client with matchDate >= today (optional: only today or future matches)
+        Optional<Ticket> optionalTicket = ticketRepository.findFirstByPurchase_Client_IdOrderByMatchDateAsc(clientId);
+
+        if (optionalTicket.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Ticket ticket = optionalTicket.get();
+        LocalDateTime matchDateTime = ticket.getMatchDate();
+
+        // Define allowed entrance window (3 hours before the match until the match ends)
+        LocalDateTime allowedEntryStart = matchDateTime.minusHours(3);
+        LocalDateTime allowedEntryEnd = matchDateTime.plusHours(2);
+
+        if (now.isAfter(allowedEntryStart) && now.isBefore(allowedEntryEnd)) {
+            return Optional.of(ticket);
+        }
+
+        return Optional.empty(); // Not valid ticket for current time
     }
 }
