@@ -5,11 +5,11 @@ import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.Ticket;
 import com.tickefy.tickefy.entities.User;
 import com.tickefy.tickefy.entities.dto.FullNameDTO;
-import com.tickefy.tickefy.entities.dto.UserDTO;
 import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.exceptions.UnauthorizedException;
 import com.tickefy.tickefy.repository.UserRepository;
+import com.tickefy.tickefy.response.JsonResponse;
 import com.tickefy.tickefy.service.FacialRecognitionService;
 import com.tickefy.tickefy.service.TicketService;
 import com.tickefy.tickefy.service.UserService;
@@ -155,7 +155,8 @@ public class UserController {
 
             // Check if face image is provided
             if (facePhoto == null || facePhoto.isEmpty()) {
-                return new ResponseEntity<>("Face image is required",
+                System.out.println("Face photo is required");
+                return new ResponseEntity<>(new JsonResponse("Face image is required."),
                         HttpStatus.BAD_REQUEST);
             }
 
@@ -165,7 +166,8 @@ public class UserController {
             String clientIdStr = (String) response.get("message");
 
             if (!identified) {
-                return new ResponseEntity<>("Face could not be identified. Please try again.",
+                System.out.println("Face could not be identified. Please try again.");
+                return new ResponseEntity<>(new JsonResponse("Face could not be identified. Please try again."),
                         HttpStatus.BAD_REQUEST);
             }
 
@@ -180,16 +182,18 @@ public class UserController {
 
                 FullNameDTO fullNameDTO = new FullNameDTO(firstName+ " " + lastName);
 
+                System.out.println(fullNameDTO);
                 return new ResponseEntity<>(fullNameDTO, HttpStatus.OK);
             } else {
-                return new ResponseEntity<>("No ticket found for today for this client."
+                System.out.println("No ticket found for today for this client.");
+                return new ResponseEntity<>(new JsonResponse("No ticket found for today for this client.")
                         ,HttpStatus.NOT_FOUND);
             }
-
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
-            return new ResponseEntity<>("An error occurred during client identification: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new JsonResponse("An error occurred during client identification: "+
+                    " " +e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

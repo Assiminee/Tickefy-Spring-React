@@ -57,7 +57,7 @@ public class TicketController {
 
             String matchName = homeTeamName+" VS "+awayTeamName;
 
-            // Example: matchDateString = "25/04/2025"
+            // Example: matchDateString = "25/04/2025T20:00"
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
             LocalDateTime matchDate;

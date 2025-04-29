@@ -23,4 +23,10 @@ public class AuthResponse {
 		this.jwt = jwt;
 	}
 
+	@Override
+	public String toString() {
+		return "AuthResponse{" +
+				"jwt='" + jwt + '\'' +
+				'}';
+	}
 }

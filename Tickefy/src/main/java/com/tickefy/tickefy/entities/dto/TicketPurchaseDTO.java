@@ -53,4 +53,14 @@ public class TicketPurchaseDTO {
     public void setPrice(double price) {
         this.price = price;
     }
+
+    @Override
+    public String toString() {
+        return "TicketPurchaseDTO{" +
+                "homeTeamName='" + homeTeamName + '\'' +
+                ", awayTeamName='" + awayTeamName + '\'' +
+                ", seatNumber=" + seatNumber +
+                ", price=" + price +
+                '}';
+    }
 }

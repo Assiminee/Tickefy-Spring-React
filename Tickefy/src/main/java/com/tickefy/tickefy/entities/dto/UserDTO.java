@@ -155,4 +155,22 @@ public class UserDTO {
 	public void setFlagged(String flagged) {
 		this.flagged = flagged;
 	}
+
+	@Override
+	public String toString() {
+		return "UserDTO{" +
+				"id=" + id +
+				", f_name='" + f_name + '\'' +
+				", l_name='" + l_name + '\'' +
+				", email='" + email + '\'' +
+				", birthdate=" + birthdate +
+				", phone='" + phone + '\'' +
+				", role='" + role + '\'' +
+				", profile_picture='" + profile_picture + '\'' +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				", nationality='" + nationality + '\'' +
+				", flagged='" + flagged + '\'' +
+				'}';
+	}
 }

@@ -4,6 +4,7 @@ package com.tickefy.tickefy.controller;
 import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.Purchase;
 import com.tickefy.tickefy.repository.ClientRepository;
+import com.tickefy.tickefy.response.JsonResponse;
 import com.tickefy.tickefy.service.ImageQualityService;
 import com.tickefy.tickefy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/images")
@@ -42,16 +45,20 @@ public class ImageTreatmentController {
             if (facePhoto == null || facePhoto.isEmpty()) {
                 return ResponseEntity
                         .badRequest()
-                        .body("Face image is required");
+                        .body(new JsonResponse("Face image is required"));
             }
 
             // Assess image quality using FastAPI microservice
-            boolean isImageValid = imageQualityService.assessImageQuality(loggedUser.getId(), facePhoto);
+            Map<String, Object> result = imageQualityService.assessImageQuality(loggedUser.getId(), facePhoto);
+
+
+            boolean isImageValid = (boolean) result.getOrDefault("is_image_valid", false);
+            String message = (String) result.getOrDefault("message", "Unknown error");
 
             if (!isImageValid) {
                 return ResponseEntity
                         .badRequest()
-                        .body("Image quality is too low for facial recognition. Please upload a clearer image.");
+                        .body(message);
             }
             loggedUser.setHasImage(true);  // user gave us his image
             clientRepository.save(loggedUser);
