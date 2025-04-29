@@ -52,8 +52,10 @@ public class ImageTreatmentController {
             Map<String, Object> result = imageQualityService.assessImageQuality(loggedUser.getId(), facePhoto);
 
 
+            System.out.println(result);
             boolean isImageValid = (boolean) result.getOrDefault("is_image_valid", false);
             String message = (String) result.getOrDefault("message", "Unknown error");
+            System.out.println(message);
 
             if (!isImageValid) {
                 return ResponseEntity
