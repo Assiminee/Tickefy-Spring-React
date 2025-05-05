@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email);
 
         if(user == null) {
-            throw new ResourceNotFoundException("User not found");
+            throw new ResourceNotFoundException("User profile not found");
         }
         return user;
     }

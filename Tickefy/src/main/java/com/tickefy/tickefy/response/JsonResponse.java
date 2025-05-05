@@ -4,7 +4,7 @@ package com.tickefy.tickefy.response;
 
 public class JsonResponse {
 
-    String message;
+   private String message;
 
     public JsonResponse(){}
 

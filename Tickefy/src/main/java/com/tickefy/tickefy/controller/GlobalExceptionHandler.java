@@ -6,42 +6,56 @@ import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.exceptions.UnauthorizedException;
+import com.tickefy.tickefy.response.JsonResponse;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.stream.Collectors;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<JsonResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        return ResponseEntity.badRequest().body(
+                new JsonResponse(ex.getConstraintViolations()
+                        .stream()
+                        .map(cv -> cv.getMessage())
+                        .collect(Collectors.joining(" ; "))
+                ));
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException ex) {
+    public ResponseEntity<JsonResponse> handleUnauthorizedException(UnauthorizedException ex) {
         System.out.println(ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new JsonResponse(ex.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(ResourceNotFoundException ex) {
+    public ResponseEntity<JsonResponse> handleNotFoundException(ResourceNotFoundException ex) {
         System.out.println(ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new JsonResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<String> handleConflictException(ConflictException ex) {
+    public ResponseEntity<JsonResponse> handleConflictException(ConflictException ex) {
         System.out.println(ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(new JsonResponse(ex.getMessage()), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequestException(BadRequestException ex) {
+    public ResponseEntity<JsonResponse> handleBadRequestException(BadRequestException ex) {
         System.out.println(ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new JsonResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGenericException(Exception ex) {
+    public ResponseEntity<JsonResponse> handleGenericException(Exception ex) {
         System.out.println(ex.getMessage());
-        return new ResponseEntity<>("An unexpected error occurred: " +ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new JsonResponse("An unexpected error occurred: "+ ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

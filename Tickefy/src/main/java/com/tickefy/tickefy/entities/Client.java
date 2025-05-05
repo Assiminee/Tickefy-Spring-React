@@ -5,6 +5,7 @@ import com.tickefy.tickefy.entities.enums.Role;
 import jakarta.persistence.Entity;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -25,14 +26,14 @@ public class Client extends User {
         this.flagged = flagged;
     }
 
-    public Client(UUID id, String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture, String nationality, boolean flagged,boolean hasImage) {
+    public Client(UUID id, String f_name, String l_name, String email, String password, LocalDate birthdate, String phone, Role role, String profile_picture, String nationality, boolean flagged, boolean hasImage) {
         super(id, f_name, l_name, email, password, birthdate, phone, role, profile_picture);
         this.nationality = nationality;
         this.flagged = flagged;
         this.hasImage = hasImage;
     }
 
-    public Client(String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture, String nationality, boolean flagged,boolean hasImage) {
+    public Client(String f_name, String l_name, String email, String password, LocalDate birthdate, String phone, Role role, String profile_picture, String nationality, boolean flagged,boolean hasImage) {
         super(f_name, l_name, email, password, birthdate, phone, role, profile_picture);
         this.nationality = nationality;
         this.flagged = flagged;

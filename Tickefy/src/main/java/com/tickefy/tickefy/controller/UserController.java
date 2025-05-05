@@ -5,6 +5,7 @@ import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.Ticket;
 import com.tickefy.tickefy.entities.User;
 import com.tickefy.tickefy.entities.dto.FullNameDTO;
+import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.exceptions.UnauthorizedException;
@@ -13,14 +14,19 @@ import com.tickefy.tickefy.response.JsonResponse;
 import com.tickefy.tickefy.service.FacialRecognitionService;
 import com.tickefy.tickefy.service.TicketService;
 import com.tickefy.tickefy.service.UserService;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +34,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -55,11 +62,11 @@ public class UserController {
 
 
     @GetMapping("/test")
-    public ResponseEntity<String> test (@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<JsonResponse> test (@RequestHeader("Authorization") String jwt){
 
         User user = userService.getProfile(jwt);
 
-        return new ResponseEntity<>("welcome to hell mfs", HttpStatus.OK);
+        return new ResponseEntity<>(new JsonResponse("welcome to hell mfs"), HttpStatus.OK);
     }
 
     @GetMapping("/profile")
@@ -92,12 +99,12 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<?> updateLoggedInUser (@RequestHeader("Authorization") String jwt
-            , @RequestParam("f_name") String f_name
-            , @RequestParam("l_name") String l_name
-            , @RequestParam("email") String email
-            , @RequestParam("password") String password
-            , @RequestParam("phone") String phone
-            , @RequestParam("birthdate") String birthdate
+            , @RequestParam("f_name") @NotBlank(message = "First name is required.") String f_name
+            , @RequestParam("l_name") @NotBlank(message = "Last name is required.") String l_name
+            , @RequestParam("email") @NotBlank(message = "Email is required.") String email
+            , @RequestParam("password") @NotBlank(message = "Password is required.") String password
+            , @RequestParam("phone") @NotBlank(message = "Phone is required.") String phone
+            , @RequestParam("birthdate") @NotBlank(message = "birthDate is required.") String birthdateString
             , @RequestParam("nationality") String nationality
             , @RequestParam("profilePicture") MultipartFile profilePicture) throws Exception
     {
@@ -110,11 +117,22 @@ public class UserController {
             throw new ConflictException("User with this email already exists");
         }
 
+        // Example: matchDateString = "25/04/2025"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        LocalDate birthDate;
+        try {
+            birthDate = LocalDate.parse(birthdateString, formatter);
+        } catch (DateTimeParseException e) {
+            System.out.println(e.getMessage());
+            throw new BadRequestException("Invalid birth date format. Please use yyyy-MM-dd.");
+        }
+
         try {
 
             Client updatedUser = new Client();
 
-            updatedUser.setBirthdate(birthdate);
+            updatedUser.setBirthdate(birthDate);
             updatedUser.setEmail(email);
             updatedUser.setF_name(f_name);
             updatedUser.setL_name(l_name);
@@ -149,16 +167,15 @@ public class UserController {
 
     @PostMapping("/identify")
     public ResponseEntity<?> identifyClient (@RequestHeader("Authorization") String jwt,
-                                              @RequestParam(name = "facePhoto") MultipartFile facePhoto){
+                                             @RequestParam(name = "facePhoto") MultipartFile facePhoto){
+
+        // Check if face image is provided
+        if (facePhoto == null || facePhoto.isEmpty()) {
+            System.out.println("Face image is required");
+            throw new BadRequestException("Face image is required");
+        }
 
         try {
-
-            // Check if face image is provided
-            if (facePhoto == null || facePhoto.isEmpty()) {
-                System.out.println("Face photo is required");
-                return new ResponseEntity<>(new JsonResponse("Face image is required."),
-                        HttpStatus.BAD_REQUEST);
-            }
 
             Map<String, Object> response = facialRecognitionService.identifyClient(facePhoto);
 
@@ -180,7 +197,7 @@ public class UserController {
                 String firstName = ticket.getPurchase().getClient().getF_name();
                 String lastName = ticket.getPurchase().getClient().getL_name();
 
-                FullNameDTO fullNameDTO = new FullNameDTO(firstName+ " " + lastName);
+                FullNameDTO fullNameDTO = new FullNameDTO(firstName+ " " +lastName);
 
                 System.out.println(fullNameDTO);
                 return new ResponseEntity<>(fullNameDTO, HttpStatus.OK);

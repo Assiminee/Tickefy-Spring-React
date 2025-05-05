@@ -5,6 +5,7 @@ import com.tickefy.tickefy.config.JwtProvider;
 import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.User;
 import com.tickefy.tickefy.entities.enums.Role;
+import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.repository.UserRepository;
 import com.tickefy.tickefy.request.LoginRequest;
@@ -12,6 +13,7 @@ import com.tickefy.tickefy.request.SignupRequest;
 import com.tickefy.tickefy.response.AuthResponse;
 import com.tickefy.tickefy.service.CustomerUserServiceImplementation;
 import com.tickefy.tickefy.service.UserService;
+import jakarta.validation.constraints.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +23,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 @RestController
 @RequestMapping("/auth")
+@Validated
 public class AuthController {
 
     private UserRepository userRepository;
@@ -52,18 +59,29 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> createUserHandler(
-              @RequestParam("f_name") String f_name
-            , @RequestParam("l_name") String l_name
-            , @RequestParam("email") String email
-            , @RequestParam("password") String password
-            , @RequestParam("phone") String phone
-            , @RequestParam("birthdate") String birthdate
+              @RequestParam("f_name") @NotBlank(message = "First name is required.") String f_name
+            , @RequestParam("l_name") @NotBlank(message = "Last name is required.") String l_name
+            , @RequestParam("email") @NotBlank(message = "Email is required.") String email
+            , @RequestParam("password") @NotBlank(message = "Password is required.") String password
+            , @RequestParam("phone") @NotBlank(message = "Phone is required.") String phone
+            , @RequestParam("birthdate") @NotBlank(message = "birthDate is required.") String birthdateString
 
     )
     {
 
         if(userRepository.existsByEmail(email))
             throw new ConflictException("Email already exists");
+
+        // Example: matchDateString = "25/04/2025"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        LocalDate birthDate;
+        try {
+            birthDate = LocalDate.parse(birthdateString, formatter);
+        } catch (DateTimeParseException e) {
+            System.out.println(e.getMessage());
+            throw new BadRequestException("Invalid birth date format. Please use yyyy-MM-dd.");
+        }
 
         try {
 
@@ -74,7 +92,7 @@ public class AuthController {
             newUser.setF_name(f_name);
             newUser.setL_name(l_name);
             newUser.setPhone(phone);
-            newUser.setBirthdate(birthdate);
+            newUser.setBirthdate(birthDate);
             newUser.setRole(Role.ROLE_CLIENT);
             newUser.setFlagged(false);
             newUser.setPassword(passwordEncoder.encode(password));

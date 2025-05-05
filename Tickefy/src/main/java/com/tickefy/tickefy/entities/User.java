@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
@@ -28,7 +29,7 @@ public class User {
     private String password;
 
 
-    private String birthdate;
+    private LocalDate birthdate;
 
     private String phone;
 
@@ -45,7 +46,7 @@ public class User {
     public User() {
     }
 
-    public User(UUID id, String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture) {
+    public User(UUID id, String f_name, String l_name, String email, String password, LocalDate birthdate, String phone, Role role, String profile_picture) {
         this.id = id;
         this.f_name = f_name;
         this.l_name = l_name;
@@ -57,7 +58,7 @@ public class User {
         this.profile_picture = profile_picture;
     }
 
-    public User(String f_name, String l_name, String email, String password, String birthdate, String phone, Role role, String profile_picture) {
+    public User(String f_name, String l_name, String email, String password, LocalDate birthdate, String phone, Role role, String profile_picture) {
         this.f_name = f_name;
         this.l_name = l_name;
         this.email = email;
@@ -108,11 +109,11 @@ public class User {
         this.password = password;
     }
 
-    public String getBirthdate() {
+    public LocalDate getBirthdate() {
         return birthdate;
     }
 
-    public void setBirthdate(String birthdate) {
+    public void setBirthdate(LocalDate birthdate) {
         this.birthdate = birthdate;
     }
 

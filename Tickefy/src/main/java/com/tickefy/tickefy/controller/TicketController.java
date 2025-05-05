@@ -5,15 +5,20 @@ import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.Purchase;
 import com.tickefy.tickefy.entities.Ticket;
 import com.tickefy.tickefy.entities.dto.TicketPurchaseDTO;
+import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.repository.ClientRepository;
 import com.tickefy.tickefy.repository.UserRepository;
 import com.tickefy.tickefy.service.ImageQualityService;
 import com.tickefy.tickefy.service.TicketService;
 import com.tickefy.tickefy.service.UserService;
 import com.tickefy.tickefy.service.UserServiceImpl;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +31,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tickets")
+@Validated
 public class TicketController {
 
 
@@ -42,40 +48,34 @@ public class TicketController {
 
     @PostMapping
     public ResponseEntity<?> buyTicket(@RequestHeader("Authorization") String jwt,
-                                              @RequestParam("homeTeamName") String homeTeamName,
-                                              @RequestParam("awayTeamName") String awayTeamName,
-                                              @RequestParam("matchDate") String matchDateString,
-                                              @RequestParam("seatNumber") int seatNumber,
-                                              @RequestParam("VenueName") String VenueName,
-                                              @RequestParam("VenueCity") String VenueCity,
-                                              @RequestParam("cardType") String cardType,
-                                              @RequestParam("cardNumber") String cardNumber,
-                                              @RequestParam("cardHolderName") String cardHolderName,
-                                              @RequestParam("expirationDate") String expirationDate,
-                                              @RequestParam("cvvCode") String cvvCode) {
+                                       @RequestParam @NotBlank(message = "Home team name is required.") String homeTeamName,
+                                       @RequestParam @NotBlank(message = "Away team name is required.") String awayTeamName,
+                                       @RequestParam("matchDate") @NotBlank(message = "Match date is required.") String matchDateString,
+                                       @RequestParam @Min(value = 1, message = "Seat number must be greater than 0.") int seatNumber,
+                                       @RequestParam @NotBlank(message = "Venue name is required.") String VenueName,
+                                       @RequestParam @NotBlank(message = "Venue city is required.") String VenueCity,
+                                       @RequestParam @NotBlank(message = "Card type is required.") String cardType,
+                                       @RequestParam @Pattern(regexp = "\\d{16}", message = "Card number must be 16 digits.") String cardNumber,
+                                       @RequestParam @NotBlank(message = "Card holder name is required.") String cardHolderName,
+                                       @RequestParam @Pattern(regexp = "\\d{2}/\\d{2}", message = "Expiration date must be in MM/YY format.") String expirationDate,
+                                       @RequestParam @Pattern(regexp = "\\d{3}", message = "CVV must be 3 digits.") String cvvCode) {
+
+        // Example: matchDateString = "25/04/2025T20:00"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
+        LocalDateTime matchDate;
+        try {
+            matchDate = LocalDateTime.parse(matchDateString, formatter);
+        } catch (DateTimeParseException e) {
+            System.out.println(e.getMessage());
+            throw new BadRequestException("Invalid match date format. Please use yyyy-MM-dd'T'HH:mm.");
+        }
+
         try{
 
             String matchName = homeTeamName+" VS "+awayTeamName;
 
-            // Example: matchDateString = "25/04/2025T20:00"
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-
-            LocalDateTime matchDate;
-            try {
-                matchDate = LocalDateTime.parse(matchDateString, formatter);
-            } catch (DateTimeParseException e) {
-                System.out.println(e.getMessage());
-                return ResponseEntity
-                        .badRequest()
-                        .body("Invalid match date format. Please use yyyy-MM-dd'T'HH:mm.");
-            }
-
-            // Get the logged-in user
-            Client loggedUser = (Client) userService.getProfile(jwt);
-
-
            Ticket ticket = ticketService.createPurchase(jwt,matchName, matchDate, seatNumber,VenueName,VenueCity);
-
             ticket.getPurchase().getClient().setPassword("");
 
             return new ResponseEntity<>(ticket, HttpStatus.CREATED);

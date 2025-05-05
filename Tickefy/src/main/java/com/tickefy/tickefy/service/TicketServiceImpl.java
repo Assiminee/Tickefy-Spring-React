@@ -139,6 +139,7 @@ public class TicketServiceImpl implements TicketService {
         Optional<Ticket> optionalTicket = ticketRepository.findFirstByPurchase_Client_IdOrderByMatchDateAsc(clientId);
 
         if (optionalTicket.isEmpty()) {
+            System.out.println("No ticket found for this client in this day and time");
             return Optional.empty();
         }
 
@@ -153,6 +154,7 @@ public class TicketServiceImpl implements TicketService {
             return Optional.of(ticket);
         }
 
+        System.out.println("Ticket exists but NOT valid for current time");
         return Optional.empty(); // Not valid ticket for current time
     }
 }
