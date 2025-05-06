@@ -30,40 +30,28 @@ public class AppConfig {
                         management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(Authorize ->
-                        Authorize.requestMatchers("/images/**").permitAll()
-                                .requestMatchers("/api/**").authenticated()
-                                .anyRequest().permitAll()
+                        Authorize
+                           .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                           .requestMatchers("/images/**").permitAll()
+                           .requestMatchers("/api/**").authenticated()
+                           .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtTokenValidator() , BasicAuthenticationFilter.class)
                 .csrf(csrf->csrf.disable())
                 .cors(cors->cors.configurationSource(corsConfigurationSource()))
-                // .cors(cors->cors.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());
 
         return http.build();
     }
 
-
-
-
     private CorsConfigurationSource corsConfigurationSource() {
 
         return new CorsConfigurationSource() {
-
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                // TODO Auto-generated method stub
                 CorsConfiguration cfg = new CorsConfiguration();
-                // cfg.setAllowedOrigins(Arrays.asList(
-                //         "http://localhost:5173",
-                //         "http://spring-app:5001"
-                // ));
-                // cfg.setAllowedMethods(Collections.singletonList("*"));
-                // cfg.setAllowCredentials(true);
-                // cfg.setAllowedHeaders(Collections.singletonList("*"));
-                // cfg.setExposedHeaders(Arrays.asList("Authorization"));
-                // cfg.setMaxAge(3600L);
+
                 cfg.setAllowedOriginPatterns(Collections.singletonList("*"));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowedHeaders(Collections.singletonList("*"));
