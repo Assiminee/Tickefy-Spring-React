@@ -2,7 +2,6 @@ package com.tickefy.tickefy.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tickefy.tickefy.entities.enums.CardType;
 import jakarta.persistence.*;
 
 import java.util.List;

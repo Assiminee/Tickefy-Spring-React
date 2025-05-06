@@ -8,6 +8,7 @@ import com.tickefy.tickefy.entities.dto.TicketPurchaseDTO;
 import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.repository.ClientRepository;
 import com.tickefy.tickefy.repository.UserRepository;
+import com.tickefy.tickefy.response.JsonResponse;
 import com.tickefy.tickefy.service.ImageQualityService;
 import com.tickefy.tickefy.service.TicketService;
 import com.tickefy.tickefy.service.UserService;
@@ -81,7 +82,8 @@ public class TicketController {
             return new ResponseEntity<>(ticket, HttpStatus.CREATED);
         } catch(Exception e){
             System.out.println(e.getMessage());
-            return new ResponseEntity<>("Ticket Purchase Error",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new JsonResponse("Ticket Purchase Error : "+e.getMessage())
+                    ,HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -89,10 +91,10 @@ public class TicketController {
     public ResponseEntity<List<Ticket>> getMyTickets(@RequestHeader("Authorization") String jwt) {
 
         List<Ticket> tickets = ticketService.getClientTickets(jwt);
+
         for (Ticket ticket : tickets) {
            ticket.getPurchase().getClient().setPassword("");
         }
-
         return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 
