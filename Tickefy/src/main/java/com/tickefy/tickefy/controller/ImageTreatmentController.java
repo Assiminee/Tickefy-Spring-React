@@ -55,16 +55,26 @@ public class ImageTreatmentController {
 
             boolean isImageValid = (boolean) result.getOrDefault("is_image_valid", false);
             String message = (String) result.getOrDefault("message", "Unknown error");
+            int status = (int) result.getOrDefault("status", 500);
+
             System.out.println(message);
 
             if (!isImageValid) {
+                if (status == 409) {
+                    // Delete the client if duplicate face found
+                    clientRepository.deleteById(loggedUser.getId());
+                    return ResponseEntity
+                            .status(HttpStatus.CONFLICT)
+                            .body(new JsonResponse(message));
+                }
+
                 return ResponseEntity
                         .badRequest()
                         .body(new JsonResponse(message));
             }
+
             loggedUser.setHasImage(true);  // user gave us his image
             clientRepository.save(loggedUser);
-
 
             return ResponseEntity.ok(new JsonResponse("Image quality validated."));
         } catch (Exception e) {

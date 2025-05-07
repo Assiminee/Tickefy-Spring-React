@@ -3,10 +3,7 @@ package com.tickefy.tickefy.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tickefy.tickefy.inputStream.MultipartInputStreamFileResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -40,27 +37,27 @@ public class ImageQualityServiceImpl implements ImageQualityService {
             return response.getBody();
 
         } catch (HttpClientErrorException e) {
-            // This handles 400 Bad Request and similar
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, Object> errorBody = objectMapper.readValue(e.getResponseBodyAsString(), Map.class);
-                System.out.println(errorBody);
+                errorBody.put("status", e.getStatusCode().value()); // include status for use in controller
                 return errorBody;
             } catch (Exception parseException) {
-                // Parsing failed
                 return Map.of(
                         "is_image_valid", false,
-                        "message", "Unknown error occurred while assessing image"
+                        "message", "Unknown error occurred while assessing image",
+                        "status", 500
                 );
             }
         } catch (Exception e) {
-            // Catch-all
             return Map.of(
                     "is_image_valid", false,
-                    "message", "Internal error: " + e.getMessage()
+                    "message", "Internal error: " + e.getMessage(),
+                    "status", 500
             );
         }
     }
+
 
 
 
