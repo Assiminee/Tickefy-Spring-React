@@ -11,10 +11,12 @@ import java.util.UUID;
 @Service
 public interface CartItemService {
 
-    CartItem addToCart(UUID clientId, int seatNumber, String stadiumName,
+    CartItem addToCart(UUID clientId,String matchName, int seatNumber, String stadiumName,
                        String stadiumCity, LocalDateTime matchDate);
 
     List<CartItem> getClientCart(UUID clientId);
+
+    CartItem getCartItemById(UUID clientId, UUID itemId);
 
     boolean isSeatAvailable(int seatNumber, String stadiumName, String stadiumCity,
                             LocalDateTime matchDate);

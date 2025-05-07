@@ -3,9 +3,11 @@ package com.tickefy.tickefy.service;
 
 import com.tickefy.tickefy.entities.CartItem;
 import com.tickefy.tickefy.entities.Seat;
+import com.tickefy.tickefy.entities.Ticket;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.repository.CartItemRepository;
 import com.tickefy.tickefy.repository.SeatRepository;
+import com.tickefy.tickefy.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,19 +23,23 @@ public class CartItemServiceImpl implements CartItemService {
 
     private final SeatRepository seatRepository;
 
+    private final TicketRepository ticketRepository;
+
     @Autowired
-    public CartItemServiceImpl(CartItemRepository cartItemRepository, SeatRepository seatRepository) {
+    public CartItemServiceImpl(CartItemRepository cartItemRepository, SeatRepository seatRepository,
+                               TicketRepository ticketRepository) {
         this.cartItemRepository = cartItemRepository;
         this.seatRepository = seatRepository;
+        this.ticketRepository = ticketRepository;
     }
 
 
     @Override
-    public CartItem addToCart(UUID clientId, int seatNumber, String stadiumName,
+    public CartItem addToCart(UUID clientId, String matchName, int seatNumber, String stadiumName,
                               String stadiumCity, LocalDateTime matchDate) {
 
-        CartItem cartItem = new CartItem(clientId,seatNumber,stadiumName,stadiumCity,
-                matchDate,false,LocalDateTime.now());
+        CartItem cartItem = new CartItem(clientId,matchName, seatNumber,stadiumName,stadiumCity,
+                matchDate);
 
         return cartItemRepository.save(cartItem);
     }
@@ -44,19 +50,23 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
+    public CartItem getCartItemById(UUID clientId, UUID itemId) {
+
+        return cartItemRepository.findByIdAndClientId(itemId,clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart Item not found"));
+    }
+
+    @Override
     public boolean isSeatAvailable(int seatNumber, String stadiumName, String stadiumCity, LocalDateTime matchDate) {
 
         // Check if already purchased (seat marked as occupied)
-        Optional<Seat> occupiedSeat = seatRepository.findOccupiedSeat(seatNumber, stadiumName, stadiumCity);
+        Optional<Ticket> occupiedSeat = ticketRepository.findBySeatAndStadiumAndMatchDate(seatNumber,stadiumName,stadiumCity,matchDate);
         if (occupiedSeat.isPresent()) {
-            System.out.println("Seat is already Purchased : " + true);
+            System.out.println("Seat number "+seatNumber+" is already Purchased : " + true);
             return true;
         }
-
-        System.out.println("Seat is Reserved in a cart : "+ !cartItemRepository.existsBySeatNumberAndStadiumNameAndStadiumCityAndMatchDateAndReservedFalse(
-                seatNumber, stadiumName, stadiumCity, matchDate));
-        return !cartItemRepository.existsBySeatNumberAndStadiumNameAndStadiumCityAndMatchDateAndReservedFalse(
-                seatNumber, stadiumName, stadiumCity, matchDate);
+        System.out.println("Seat number "+seatNumber+" is available" );
+        return false;
     }
 
     @Override

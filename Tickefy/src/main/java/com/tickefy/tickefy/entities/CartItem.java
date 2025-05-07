@@ -3,6 +3,7 @@ package com.tickefy.tickefy.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,39 +19,28 @@ public class CartItem {
 
     private UUID clientId;
 
+    private String matchName;
+
     private int seatNumber;
 
-    private String stadiumName;
+    private String venueName;
 
-    private String stadiumCity;
+    private String venueCity;
 
     private LocalDateTime matchDate;
 
-    private boolean reserved;
-
+    @CreationTimestamp
     private LocalDateTime addedAt;
 
     public CartItem() {}
 
-    public CartItem(UUID id, UUID clientId, int seatNumber, String stadiumName, String stadiumCity, LocalDateTime matchDate, boolean reserved, LocalDateTime addedAt) {
-        this.id = id;
+    public CartItem(UUID clientId, String matchName, int seatNumber, String venueName, String venueCity, LocalDateTime matchDate) {
         this.clientId = clientId;
+        this.matchName = matchName;
         this.seatNumber = seatNumber;
-        this.stadiumName = stadiumName;
-        this.stadiumCity = stadiumCity;
+        this.venueName = venueName;
+        this.venueCity = venueCity;
         this.matchDate = matchDate;
-        this.reserved = reserved;
-        this.addedAt = addedAt;
-    }
-
-    public CartItem(UUID clientId, int seatNumber, String stadiumName, String stadiumCity, LocalDateTime matchDate, boolean reserved, LocalDateTime addedAt) {
-        this.clientId = clientId;
-        this.seatNumber = seatNumber;
-        this.stadiumName = stadiumName;
-        this.stadiumCity = stadiumCity;
-        this.matchDate = matchDate;
-        this.reserved = reserved;
-        this.addedAt = addedAt;
     }
 
     public UUID getId() {
@@ -69,6 +59,14 @@ public class CartItem {
         this.clientId = clientId;
     }
 
+    public String getMatchName() {
+        return matchName;
+    }
+
+    public void setMatchName(String matchName) {
+        this.matchName = matchName;
+    }
+
     public int getSeatNumber() {
         return seatNumber;
     }
@@ -77,20 +75,20 @@ public class CartItem {
         this.seatNumber = seatNumber;
     }
 
-    public String getStadiumName() {
-        return stadiumName;
+    public String getVenueName() {
+        return venueName;
     }
 
-    public void setStadiumName(String stadiumName) {
-        this.stadiumName = stadiumName;
+    public void setVenueName(String venueName) {
+        this.venueName = venueName;
     }
 
-    public String getStadiumCity() {
-        return stadiumCity;
+    public String getVenueCity() {
+        return venueCity;
     }
 
-    public void setStadiumCity(String stadiumCity) {
-        this.stadiumCity = stadiumCity;
+    public void setVenueCity(String venueCity) {
+        this.venueCity = venueCity;
     }
 
     public LocalDateTime getMatchDate() {
@@ -99,14 +97,6 @@ public class CartItem {
 
     public void setMatchDate(LocalDateTime matchDate) {
         this.matchDate = matchDate;
-    }
-
-    public boolean isReserved() {
-        return reserved;
-    }
-
-    public void setReserved(boolean reserved) {
-        this.reserved = reserved;
     }
 
     public LocalDateTime getAddedAt() {

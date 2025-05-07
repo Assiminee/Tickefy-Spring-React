@@ -15,7 +15,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
 
     List<CartItem> findByClientId(UUID clientId);
 
-    boolean existsBySeatNumberAndStadiumNameAndStadiumCityAndMatchDateAndReservedFalse(
+    boolean existsBySeatNumberAndVenueNameAndVenueCityAndMatchDate(
             int seatNumber, String stadiumName, String stadiumCity, LocalDateTime matchDate);
 
     Optional<CartItem> findByIdAndClientId(UUID id, UUID clientId);

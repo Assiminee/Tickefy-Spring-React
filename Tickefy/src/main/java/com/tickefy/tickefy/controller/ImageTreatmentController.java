@@ -37,7 +37,7 @@ public class ImageTreatmentController {
 
     @PostMapping
     public ResponseEntity<?> assessImageQuality(@RequestHeader("Authorization") String jwt,
-                                       @RequestParam(name = "facePhoto") MultipartFile facePhoto) {
+                                                @RequestParam(name = "facePhoto") MultipartFile facePhoto) {
 
         // Check if face image is provided
         if (facePhoto == null || facePhoto.isEmpty()) {

@@ -4,7 +4,6 @@ package com.tickefy.tickefy.controller;
 import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.Purchase;
 import com.tickefy.tickefy.entities.Ticket;
-import com.tickefy.tickefy.entities.dto.TicketPurchaseDTO;
 import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.repository.ClientRepository;
 import com.tickefy.tickefy.repository.UserRepository;

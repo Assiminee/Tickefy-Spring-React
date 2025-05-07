@@ -9,7 +9,6 @@ import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.repository.UserRepository;
 import com.tickefy.tickefy.request.LoginRequest;
-import com.tickefy.tickefy.request.SignupRequest;
 import com.tickefy.tickefy.response.AuthResponse;
 import com.tickefy.tickefy.service.CustomerUserServiceImplementation;
 import com.tickefy.tickefy.service.UserService;

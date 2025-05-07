@@ -39,6 +39,8 @@ public class CartItemController {
 
     @PostMapping
     public ResponseEntity<?> addToCart(@RequestHeader("Authorization") String jwt,
+                                       @RequestParam("homeTeamName") @NotBlank(message = "Home team name is required.") String homeTeamName,
+                                       @RequestParam("awayTeamName") @NotBlank(message = "Away team name is required.") String awayTeamName,
                                        @RequestParam("seatNumber") @Min(value = 1, message = "Seat number must be greater than 0.") int seatNumber,
                                        @RequestParam("VenueName") @NotBlank(message = "Venue name is required.") String stadiumName,
                                        @RequestParam("VenueCity") @NotBlank(message = "Venue city is required.") String stadiumCity,
@@ -56,14 +58,14 @@ public class CartItemController {
         }
 
         Client client = (Client) userService.getProfile(jwt);
+        String matchName = homeTeamName + " VS " + awayTeamName;
 
-        if (!cartItemService.isSeatAvailable(seatNumber, stadiumName, stadiumCity, date)) {
-            throw new ConflictException("Seat is already reserved or occupied.");
-        }
+        if(cartItemService.isSeatAvailable(seatNumber, stadiumName, stadiumCity, date))
+            throw new ConflictException("Seat number " +seatNumber+ " is already Occupied. Pick another seat");
 
         try{
 
-            CartItem cartItem = cartItemService.addToCart(client.getId(), seatNumber, stadiumName, stadiumCity, date);
+            CartItem cartItem = cartItemService.addToCart(client.getId(), matchName, seatNumber, stadiumName, stadiumCity, date);
             return ResponseEntity.ok(cartItem);
 
         } catch (Exception e){
@@ -82,19 +84,30 @@ public class CartItemController {
         return ResponseEntity.ok(cartItemService.getClientCart(client.getId()));
     }
 
-    @DeleteMapping("/{itemId}")
-    public ResponseEntity<Void> deleteCartItem(@RequestHeader("Authorization") String jwt
-                                              ,@PathVariable UUID itemId) {
+    @GetMapping("/{cartItemId}")
+    public ResponseEntity<CartItem> getCartItemById(@RequestHeader("Authorization") String jwt
+                                                   ,@PathVariable UUID cartItemId) {
 
         Client client = (Client) userService.getProfile(jwt);
 
-        cartItemService.removeCartItem(client.getId(), itemId);
+       CartItem cartItem = cartItemService.getCartItemById(client.getId(), cartItemId);
+
+        return new ResponseEntity<>(cartItem,HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{cartItemId}")
+    public ResponseEntity<Void> deleteCartItem(@RequestHeader("Authorization") String jwt
+                                              ,@PathVariable UUID cartItemId) {
+
+        Client client = (Client) userService.getProfile(jwt);
+
+        cartItemService.removeCartItem(client.getId(), cartItemId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/check-seat")
-    public ResponseEntity<Boolean> checkSeat(@RequestHeader("Authorization") String jwt,
+    public ResponseEntity<JsonResponse> checkSeat(@RequestHeader("Authorization") String jwt,
                                              @RequestParam("seatNumber") @Min(value = 1, message = "Seat number must be greater than 0.") int seatNumber,
                                              @RequestParam("VenueName") @NotBlank(message = "Venue name is required.") String stadiumName,
                                              @RequestParam("VenueCity") @NotBlank(message = "Venue city is required.") String stadiumCity,
@@ -102,7 +115,6 @@ public class CartItemController {
 
         //LocalDateTime date = LocalDateTime.parse(matchDate, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-
         LocalDateTime date;
         try {
             date = LocalDateTime.parse(matchDate, formatter);
@@ -111,6 +123,17 @@ public class CartItemController {
             throw new BadRequestException("Invalid match date format. Please use yyyy-MM-dd'T'HH:mm.");
         }
 
-        return ResponseEntity.ok(cartItemService.isSeatAvailable(seatNumber, stadiumName, stadiumCity, date));
+        try{
+
+            if(cartItemService.isSeatAvailable(seatNumber, stadiumName, stadiumCity, date))
+                return new ResponseEntity<>(new JsonResponse("Seat number " +seatNumber+ " is already Occupied. Pick another seat")
+                        ,HttpStatus.CONFLICT);
+
+            return new ResponseEntity<>(new JsonResponse("Seat number "+seatNumber+" is Available."),HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(new JsonResponse("Error checking seat availability : "+e.getMessage())
+                    ,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
