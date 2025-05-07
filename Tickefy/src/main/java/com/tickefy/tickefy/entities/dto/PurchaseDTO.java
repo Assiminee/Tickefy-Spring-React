@@ -1,21 +1,33 @@
 package com.tickefy.tickefy.entities.dto;
 
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+
 import java.util.List;
 
 public class PurchaseDTO {
 
+    @NotBlank(message = "Card type is required.")
     private String cardType;
 
+    @Pattern(regexp = "\\d{16}", message = "Card number must be 16 digits.")
     private String cardNumber;
 
+    @NotBlank(message = "Card holder name is required.")
     private String cardHolderName;
 
+    @Pattern(regexp = "\\d{2}/\\d{2}", message = "Expiration date must be in MM/YY format.")
     private String expirationDate;
 
+    @Pattern(regexp = "\\d{3}", message = "CVV must be 3 digits.")
     private String cvvCode;
 
+    @NotEmpty(message = "Cart items cannot be empty.")
+    @Valid
     private List<CartItemDTO> cartItems;
+
+
 
     public PurchaseDTO() {}
 

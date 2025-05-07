@@ -4,6 +4,8 @@ package com.tickefy.tickefy.controller;
 import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.Purchase;
 import com.tickefy.tickefy.entities.Ticket;
+import com.tickefy.tickefy.entities.dto.CartItemDTO;
+import com.tickefy.tickefy.entities.dto.PurchaseDTO;
 import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.repository.ClientRepository;
 import com.tickefy.tickefy.repository.UserRepository;
@@ -12,6 +14,7 @@ import com.tickefy.tickefy.service.ImageQualityService;
 import com.tickefy.tickefy.service.TicketService;
 import com.tickefy.tickefy.service.UserService;
 import com.tickefy.tickefy.service.UserServiceImpl;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -47,44 +50,19 @@ public class TicketController {
     }
 
     @PostMapping
-    public ResponseEntity<?> buyTicket(@RequestHeader("Authorization") String jwt,
-                                       @RequestParam @NotBlank(message = "Home team name is required.") String homeTeamName,
-                                       @RequestParam @NotBlank(message = "Away team name is required.") String awayTeamName,
-                                       @RequestParam("matchDate") @NotBlank(message = "Match date is required.") String matchDateString,
-                                       @RequestParam @Min(value = 1, message = "Seat number must be greater than 0.") int seatNumber,
-                                       @RequestParam @NotBlank(message = "Venue name is required.") String VenueName,
-                                       @RequestParam @NotBlank(message = "Venue city is required.") String VenueCity,
-                                       @RequestParam @NotBlank(message = "Card type is required.") String cardType,
-                                       @RequestParam @Pattern(regexp = "\\d{16}", message = "Card number must be 16 digits.") String cardNumber,
-                                       @RequestParam @NotBlank(message = "Card holder name is required.") String cardHolderName,
-                                       @RequestParam @Pattern(regexp = "\\d{2}/\\d{2}", message = "Expiration date must be in MM/YY format.") String expirationDate,
-                                       @RequestParam @Pattern(regexp = "\\d{3}", message = "CVV must be 3 digits.") String cvvCode) {
-
-        // Example: matchDateString = "25/04/2025T20:00"
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-
-        LocalDateTime matchDate;
+    public ResponseEntity<?> buyTicketsFromCart(@RequestHeader("Authorization") String jwt,
+                                                @Valid @RequestBody PurchaseDTO purchaseDTO) {
         try {
-            matchDate = LocalDateTime.parse(matchDateString, formatter);
-        } catch (DateTimeParseException e) {
+            Purchase purchase = ticketService.createPurchase(jwt, purchaseDTO.getCartItems());
+            purchase.getClient().setPassword(""); // Remove sensitive info
+
+            return new ResponseEntity<>(purchase, HttpStatus.CREATED);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new BadRequestException("Invalid match date format. Please use yyyy-MM-dd'T'HH:mm.");
-        }
-
-        try{
-
-            String matchName = homeTeamName+" VS "+awayTeamName;
-
-           Ticket ticket = ticketService.createPurchase(jwt,matchName, matchDate, seatNumber,VenueName,VenueCity);
-            ticket.getPurchase().getClient().setPassword("");
-
-            return new ResponseEntity<>(ticket, HttpStatus.CREATED);
-        } catch(Exception e){
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(new JsonResponse("Ticket Purchase Error : "+e.getMessage())
-                    ,HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Ticket purchase Error : "+ e.getMessage());
         }
     }
+
 
     @GetMapping
     public ResponseEntity<List<Ticket>> getMyTickets(@RequestHeader("Authorization") String jwt) {

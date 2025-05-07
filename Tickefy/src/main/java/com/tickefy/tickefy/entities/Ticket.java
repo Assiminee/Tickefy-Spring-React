@@ -1,6 +1,7 @@
 package com.tickefy.tickefy.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -34,6 +35,7 @@ public class Ticket {
 
     @ManyToOne
     @JoinColumn(name = "purchase_id", nullable = false)
+    @JsonIgnore
     private Purchase purchase; // The purchase this ticket belongs to
 
 

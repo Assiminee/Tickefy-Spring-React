@@ -59,6 +59,7 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public boolean isSeatAvailable(int seatNumber, String stadiumName, String stadiumCity, LocalDateTime matchDate) {
 
+        System.out.println("before checking the purchased seats");
         // Check if already purchased (seat marked as occupied)
         Optional<Ticket> occupiedSeat = ticketRepository.findBySeatAndStadiumAndMatchDate(seatNumber,stadiumName,stadiumCity,matchDate);
         if (occupiedSeat.isPresent()) {

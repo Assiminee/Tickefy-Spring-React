@@ -1,21 +1,32 @@
 package com.tickefy.tickefy.entities.dto;
 
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.UUID;
 
 public class CartItemDTO {
 
+    @NotNull(message = "Cart item ID is required.")
     private UUID cartItemId;
 
+    @NotBlank(message = "Match name is required.")
     private String matchName;
 
+    @NotBlank(message = "Match date is required. Format: yyyy-MM-dd'T'HH:mm")
     private String matchDate;
 
+    @Min(value = 1, message = "Seat number must be greater than 0.")
     private int seatNumber;
 
-    private String VenueName;
+    @NotBlank(message = "Venue name is required.")
+    private String venueName;
 
+    @NotBlank(message = "Venue city is required.")
     private String venueCity;
+
 
     public CartItemDTO() {
     }
@@ -25,15 +36,7 @@ public class CartItemDTO {
         this.matchName = matchName;
         this.matchDate = matchDate;
         this.seatNumber = seatNumber;
-        VenueName = venueName;
-        this.venueCity = venueCity;
-    }
-
-    public CartItemDTO(String matchName, String matchDate, int seatNumber, String venueName, String venueCity) {
-        this.matchName = matchName;
-        this.matchDate = matchDate;
-        this.seatNumber = seatNumber;
-        VenueName = venueName;
+        this.venueName = venueName;
         this.venueCity = venueCity;
     }
 
@@ -70,11 +73,11 @@ public class CartItemDTO {
     }
 
     public String getVenueName() {
-        return VenueName;
+        return venueName;
     }
 
     public void setVenueName(String venueName) {
-        VenueName = venueName;
+        this.venueName = venueName;
     }
 
     public String getVenueCity() {

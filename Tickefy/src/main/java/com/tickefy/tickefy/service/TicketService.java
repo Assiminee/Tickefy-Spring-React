@@ -3,6 +3,7 @@ package com.tickefy.tickefy.service;
 
 import com.tickefy.tickefy.entities.Purchase;
 import com.tickefy.tickefy.entities.Ticket;
+import com.tickefy.tickefy.entities.dto.CartItemDTO;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -14,8 +15,7 @@ import java.util.UUID;
 @Service
 public interface TicketService {
 
-    public Ticket createPurchase(String jwt, String matchName, LocalDateTime matchDate, int seatNumber,
-                                 String venueName, String venueCity);
+    public Purchase createPurchase(String jwt, List<CartItemDTO> cartItemDTOS);
 
     public List<Ticket> getClientTickets(String jwt);
 

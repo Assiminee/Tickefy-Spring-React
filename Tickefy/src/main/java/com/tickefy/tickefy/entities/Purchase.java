@@ -25,7 +25,6 @@ public class Purchase {
     private Client client; // Reference to the client who made the purchase
 
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
     private List<Ticket> tickets; // Tickets associated with this purchase
 
 
