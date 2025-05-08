@@ -55,7 +55,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<JsonResponse> handleGenericException(Exception ex) {
         System.out.println(ex.getMessage());
-        return new ResponseEntity<>(new JsonResponse("An unexpected error occurred: "+ ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new JsonResponse("An unexpected error occurred: "+ ex.getMessage()),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

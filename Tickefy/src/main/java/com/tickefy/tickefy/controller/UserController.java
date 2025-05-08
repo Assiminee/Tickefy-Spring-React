@@ -191,6 +191,7 @@ public class UserController {
             UUID clientId = UUID.fromString(clientIdStr);
 
             Optional<Ticket> ticketOpt = ticketService.findTodayWithTimeTicketByClient(clientId);
+            System.out.println("Client identified with ID: " + clientId);
 
             if (ticketOpt.isPresent()) {
                 Ticket ticket = ticketOpt.get();

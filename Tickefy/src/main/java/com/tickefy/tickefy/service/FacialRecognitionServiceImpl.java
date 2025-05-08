@@ -11,12 +11,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class FacialRecognitionServiceImpl implements FacialRecognitionService {
 
 
+    @Override
     public Map<String, Object> identifyClient(MultipartFile facePhoto) throws Exception {
         try {
             String url = "http://python-app:8000/api/v1/users/identify";
@@ -39,9 +41,16 @@ public class FacialRecognitionServiceImpl implements FacialRecognitionService {
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody();
+
+            } else if (response.getStatusCode() == HttpStatus.BAD_REQUEST || response.getStatusCode() == HttpStatus.NOT_FOUND) {
+
+
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("identified", false);
+                errorResponse.put("message", "Face not recognized.");
+                return errorResponse;
             } else {
-                System.out.println(response.getStatusCode() + "Failed to identify client with the face image.");
-                throw new Exception("Failed to identify client with the face image.");
+                throw new Exception("Unexpected error from facial recognition service: " + response.getStatusCode());
             }
         } catch (Exception e) {
             throw new Exception("Error calling facial recognition service: " + e.getMessage(), e);

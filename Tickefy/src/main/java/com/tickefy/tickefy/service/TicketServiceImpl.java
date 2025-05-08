@@ -160,7 +160,7 @@ public class TicketServiceImpl implements TicketService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Retrieve all tickets of client with matchDate >= today (optional: only today or future matches)
+        // Retrieve all tickets of client with matchDate >= today's match time
         Optional<Ticket> optionalTicket = ticketRepository.findFirstByPurchase_Client_IdOrderByMatchDateAsc(clientId);
 
         if (optionalTicket.isEmpty()) {
@@ -176,6 +176,7 @@ public class TicketServiceImpl implements TicketService {
         LocalDateTime allowedEntryEnd = matchDateTime.plusHours(2);
 
         if (now.isAfter(allowedEntryStart) && now.isBefore(allowedEntryEnd)) {
+            System.out.println("Client has a Ticket for this time " + now);
             return Optional.of(ticket);
         }
 
