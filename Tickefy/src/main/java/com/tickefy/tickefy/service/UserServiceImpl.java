@@ -2,12 +2,20 @@ package com.tickefy.tickefy.service;
 
 
 import com.tickefy.tickefy.config.JwtProvider;
+import com.tickefy.tickefy.controller.AuthController;
 import com.tickefy.tickefy.entities.Client;
+import com.tickefy.tickefy.entities.Purchase;
 import com.tickefy.tickefy.entities.User;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.repository.ClientRepository;
+import com.tickefy.tickefy.repository.PurchaseRepository;
 import com.tickefy.tickefy.repository.UserRepository;
+import com.tickefy.tickefy.response.AuthResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -26,13 +35,20 @@ public class UserServiceImpl implements UserService {
 
     private final ClientRepository clientRepository;
 
+    private final PurchaseRepository purchaseRepository;
+
+    private final CustomerUserServiceImplementation customUserDetails;
+
     private final String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/images";
 
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, ClientRepository clientRepository) {
+    public UserServiceImpl(UserRepository userRepository, ClientRepository clientRepository,
+                           PurchaseRepository purchaseRepository,CustomerUserServiceImplementation customUserDetails) {
         this.userRepository = userRepository;
         this.clientRepository = clientRepository;
+        this.purchaseRepository = purchaseRepository;
+        this.customUserDetails = customUserDetails;
     }
 
     @Override
@@ -163,5 +179,33 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("Client not found");
         }
         return client;
+    }
+
+    @Override
+    public String conflictClient(UUID clientId, Client loggedUser) throws ResourceNotFoundException {
+
+       Client oldClient = clientRepository.findById(clientId)
+               .orElseThrow(() -> new ResourceNotFoundException("Old Client's Account was not found"));
+
+       List<Purchase> purchases = purchaseRepository.findByClient(loggedUser);
+
+        // Move purchases if they exist
+        if (!purchases.isEmpty()) {
+            for (Purchase purchase : purchases) {
+                purchase.setClient(oldClient);
+            }
+            purchaseRepository.saveAll(purchases);
+            System.out.println("All Purchases were passed to the old account");
+        }
+
+        // Delete the new account
+        clientRepository.deleteById(loggedUser.getId());
+
+        // Bypass password check and log in old client
+        UserDetails userDetails = customUserDetails.loadUserByUsername(oldClient.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return JwtProvider.generateToken(authentication);
     }
 }

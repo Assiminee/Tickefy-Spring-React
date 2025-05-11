@@ -3,10 +3,12 @@ package com.tickefy.tickefy.service;
 import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.User;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
+import com.tickefy.tickefy.response.AuthResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -23,4 +25,6 @@ public interface UserService {
     public void deleteUser(String jwt) throws ResourceNotFoundException;
 
     public Client getUserById(UUID userId);
+
+    public String conflictClient(UUID clientId, Client loggedUser) throws ResourceNotFoundException;
 }

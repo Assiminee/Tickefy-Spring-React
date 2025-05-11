@@ -10,6 +10,7 @@ import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.repository.UserRepository;
 import com.tickefy.tickefy.request.LoginRequest;
 import com.tickefy.tickefy.response.AuthResponse;
+import com.tickefy.tickefy.service.AuthService;
 import com.tickefy.tickefy.service.CustomerUserServiceImplementation;
 import com.tickefy.tickefy.service.UserService;
 import jakarta.validation.constraints.*;
@@ -36,22 +37,26 @@ import java.util.Date;
 @Validated
 public class AuthController {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     private UserService userService;
 
     private CustomerUserServiceImplementation customUserDetails;
 
+    private AuthService authService;
+
     @Autowired
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                          CustomerUserServiceImplementation customUserDetails, UserService userService) {
+                          CustomerUserServiceImplementation customUserDetails, UserService userService,
+                          AuthService authService) {
         super();
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.customUserDetails = customUserDetails;
         this.userService = userService;
+        this.authService = authService;
     }
 
 
@@ -131,7 +136,7 @@ public class AuthController {
             System.out.println(username+ " ------- " +password);
 
 
-            Authentication authentication = authenticate(username , password);
+            Authentication authentication = authService.authenticate(username , password);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String token = JwtProvider.generateToken(authentication);
@@ -148,26 +153,26 @@ public class AuthController {
 
 
     //authenticate methode to check user and motdepasse
-    private Authentication authenticate(String username, String password) {
-
-        UserDetails userDetails = customUserDetails.loadUserByUsername(username);
-
-        System.out.println("Sign in userDetails - " +userDetails);
-
-        if(userDetails == null) {
-            System.out.println("Sign in UserDetails - null " + userDetails);
-            throw new BadCredentialsException("Invalid username or password");
-        }
-
-        if(!passwordEncoder.matches(password, userDetails.getPassword())) {
-            System.out.println("sign in userDetails - password not match " +userDetails);
-            throw new BadCredentialsException("Invalid username or password");
-        }
-
-        return new UsernamePasswordAuthenticationToken(userDetails, null , userDetails.getAuthorities());
-
-
-    }
+//    private Authentication authenticate(String username, String password) {
+//
+//        UserDetails userDetails = customUserDetails.loadUserByUsername(username);
+//
+//        System.out.println("Sign in userDetails - " +userDetails);
+//
+//        if(userDetails == null) {
+//            System.out.println("Sign in UserDetails - null " + userDetails);
+//            throw new BadCredentialsException("Invalid username or password");
+//        }
+//
+//        if(!passwordEncoder.matches(password, userDetails.getPassword())) {
+//            System.out.println("sign in userDetails - password not match " +userDetails);
+//            throw new BadCredentialsException("Invalid username or password");
+//        }
+//
+//        return new UsernamePasswordAuthenticationToken(userDetails, null , userDetails.getAuthorities());
+//
+//
+//    }
 
 
 

@@ -8,6 +8,7 @@ import com.tickefy.tickefy.entities.dto.CartItemDTO;
 import com.tickefy.tickefy.entities.dto.PurchaseDTO;
 import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.repository.ClientRepository;
+import com.tickefy.tickefy.repository.PurchaseRepository;
 import com.tickefy.tickefy.repository.UserRepository;
 import com.tickefy.tickefy.response.JsonResponse;
 import com.tickefy.tickefy.service.ImageQualityService;
@@ -42,11 +43,15 @@ public class TicketController {
 
     private final TicketService ticketService;
 
+    private final PurchaseRepository purchaseRepository;
+
 
     @Autowired
-    public TicketController(TicketService ticketService, UserService userService) {
+    public TicketController(TicketService ticketService, UserService userService,
+                            PurchaseRepository purchaseRepository) {
         this.ticketService = ticketService;
         this.userService = userService;
+        this.purchaseRepository = purchaseRepository;
     }
 
     @PostMapping
@@ -83,5 +88,14 @@ public class TicketController {
         ticket.getPurchase().getClient().setPassword("");
 
         return new ResponseEntity<>(ticket, HttpStatus.OK);
+    }
+
+    @GetMapping("/purchases")
+    public ResponseEntity<List<Purchase>> getMyPurchases(@RequestHeader("Authorization") String jwt) {
+
+        Client client = (Client) userService.getProfile(jwt);
+
+        List<Purchase> purchases = purchaseRepository.findByClient(client);
+        return new ResponseEntity<>(purchases, HttpStatus.OK);
     }
 }

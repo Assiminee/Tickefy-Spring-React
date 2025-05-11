@@ -5,6 +5,7 @@ import com.tickefy.tickefy.entities.Client;
 import com.tickefy.tickefy.entities.Purchase;
 import com.tickefy.tickefy.exceptions.BadRequestException;
 import com.tickefy.tickefy.repository.ClientRepository;
+import com.tickefy.tickefy.response.AuthResponse;
 import com.tickefy.tickefy.response.JsonResponse;
 import com.tickefy.tickefy.service.ImageQualityService;
 import com.tickefy.tickefy.service.UserService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/images")
@@ -41,6 +43,7 @@ public class ImageTreatmentController {
 
         // Check if face image is provided
         if (facePhoto == null || facePhoto.isEmpty()) {
+            System.out.println("Face image is required");
             throw new BadRequestException("Face image is required");
         }
 
@@ -52,22 +55,26 @@ public class ImageTreatmentController {
             // Assess image quality using FastAPI microservice
             Map<String, Object> result = imageQualityService.assessImageQuality(loggedUser.getId(), facePhoto);
 
+            int status = (int) result.getOrDefault("status", 500);
+            String clientIdStr = (String) result.get("label");
+
+            if (status == 409) {
+
+                UUID clientId = UUID.fromString(clientIdStr);
+                String newToken = userService.conflictClient(clientId, loggedUser);
+
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(new AuthResponse(newToken));
+            }
 
             boolean isImageValid = (boolean) result.getOrDefault("is_image_valid", false);
             String message = (String) result.getOrDefault("message", "Unknown error");
-            int status = (int) result.getOrDefault("status", 500);
+
 
             System.out.println(message);
 
             if (!isImageValid) {
-                if (status == 409) {
-                    // Delete the client if duplicate face found
-                    clientRepository.deleteById(loggedUser.getId());
-                    return ResponseEntity
-                            .status(HttpStatus.CONFLICT)
-                            .body(new JsonResponse(message));
-                }
-
                 return ResponseEntity
                         .badRequest()
                         .body(new JsonResponse(message));

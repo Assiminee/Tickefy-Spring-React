@@ -181,6 +181,6 @@ public class TicketServiceImpl implements TicketService {
         }
 
         System.out.println("Ticket exists but NOT valid for current time");
-        return Optional.empty(); // Not valid ticket for current time
+        return Optional.empty(); // No valid ticket for current time
     }
 }
