@@ -96,6 +96,9 @@ public class TicketController {
         Client client = (Client) userService.getProfile(jwt);
 
         List<Purchase> purchases = purchaseRepository.findByClient(client);
+        for (Purchase purchase : purchases) {
+            purchase.getClient().setPassword("");
+        }
         return new ResponseEntity<>(purchases, HttpStatus.OK);
     }
 }

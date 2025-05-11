@@ -10,6 +10,7 @@ import com.tickefy.tickefy.exceptions.ConflictException;
 import com.tickefy.tickefy.exceptions.ResourceNotFoundException;
 import com.tickefy.tickefy.exceptions.UnauthorizedException;
 import com.tickefy.tickefy.repository.UserRepository;
+import com.tickefy.tickefy.request.LoginRequest;
 import com.tickefy.tickefy.response.JsonResponse;
 import com.tickefy.tickefy.service.FacialRecognitionService;
 import com.tickefy.tickefy.service.TicketService;
@@ -140,8 +141,6 @@ public class UserController {
             updatedUser.setPhone(phone);
             updatedUser.setNationality(nationality);
 
-
-
             User user = userService.updateUser(loggedUser, updatedUser, profilePicture);
             user.setPassword("");
 
@@ -213,5 +212,39 @@ public class UserController {
             return new ResponseEntity<>(new JsonResponse("An error occurred during client identification: "+
                     " " +e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> resetClientCredentials (@RequestHeader("Authorization") String jwt,
+                                                     @RequestBody LoginRequest loginRequest) {
+
+        Client loggedUser = (Client) userService.getProfile(jwt);
+
+        String email = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
+
+        boolean isEmailExist = userRepository.existsByIdIsNotAndEmail(loggedUser.getId(),email);
+        if (isEmailExist) {
+            throw new ConflictException("User with this email already exists");
+        }
+
+        try{
+
+            if(email != null ) {
+                loggedUser.setEmail(email);
+            }
+            if(password != null ) {
+                loggedUser.setPassword(passwordEncoder.encode(password));
+            }
+            userRepository.save(loggedUser);
+
+            return new ResponseEntity<>(new JsonResponse("Client Credentials Reset Successfully"),
+                    HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(new JsonResponse("Error resetting Client's info : " +e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }
