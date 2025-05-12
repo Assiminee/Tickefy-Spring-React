@@ -19,7 +19,13 @@ public class CartItem {
 
     private UUID clientId;
 
-    private String matchName;
+    private String homeTeamName;
+
+    private String awayTeamName;
+
+    private String homeTeamLogo;
+
+    private String awayTeamLogo;
 
     private int seatNumber;
 
@@ -34,9 +40,12 @@ public class CartItem {
 
     public CartItem() {}
 
-    public CartItem(UUID clientId, String matchName, int seatNumber, String venueName, String venueCity, LocalDateTime matchDate) {
+    public CartItem(UUID clientId, String homeTeamName, String awayTeamName, String homeTeamLogo, String awayTeamLogo, int seatNumber, String venueName, String venueCity, LocalDateTime matchDate) {
         this.clientId = clientId;
-        this.matchName = matchName;
+        this.homeTeamName = homeTeamName;
+        this.awayTeamName = awayTeamName;
+        this.homeTeamLogo = homeTeamLogo;
+        this.awayTeamLogo = awayTeamLogo;
         this.seatNumber = seatNumber;
         this.venueName = venueName;
         this.venueCity = venueCity;
@@ -59,12 +68,36 @@ public class CartItem {
         this.clientId = clientId;
     }
 
-    public String getMatchName() {
-        return matchName;
+    public String getHomeTeamName() {
+        return homeTeamName;
     }
 
-    public void setMatchName(String matchName) {
-        this.matchName = matchName;
+    public void setHomeTeamName(String homeTeamName) {
+        this.homeTeamName = homeTeamName;
+    }
+
+    public String getAwayTeamName() {
+        return awayTeamName;
+    }
+
+    public String getHomeTeamLogo() {
+        return homeTeamLogo;
+    }
+
+    public void setHomeTeamLogo(String homeTeamLogo) {
+        this.homeTeamLogo = homeTeamLogo;
+    }
+
+    public String getAwayTeamLogo() {
+        return awayTeamLogo;
+    }
+
+    public void setAwayTeamLogo(String awayTeamLogo) {
+        this.awayTeamLogo = awayTeamLogo;
+    }
+
+    public void setAwayTeamName(String awayTeamName) {
+        this.awayTeamName = awayTeamName;
     }
 
     public int getSeatNumber() {

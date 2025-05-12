@@ -41,6 +41,8 @@ public class CartItemController {
     public ResponseEntity<?> addToCart(@RequestHeader("Authorization") String jwt,
                                        @RequestParam("homeTeamName") @NotBlank(message = "Home team name is required.") String homeTeamName,
                                        @RequestParam("awayTeamName") @NotBlank(message = "Away team name is required.") String awayTeamName,
+                                       @RequestParam("homeTeamLogo") @NotBlank(message = "Home team name is required.") String homeTeamLogo,
+                                       @RequestParam("awayTeamLogo") @NotBlank(message = "Away team name is required.") String awayTeamLogo,
                                        @RequestParam("seatNumber") @Min(value = 1, message = "Seat number must be greater than 0.") int seatNumber,
                                        @RequestParam("VenueName") @NotBlank(message = "Venue name is required.") String stadiumName,
                                        @RequestParam("VenueCity") @NotBlank(message = "Venue city is required.") String stadiumCity,
@@ -58,14 +60,15 @@ public class CartItemController {
         }
 
         Client client = (Client) userService.getProfile(jwt);
-        String matchName = homeTeamName + " VS " + awayTeamName;
+       // String matchName = homeTeamName + " VS " + awayTeamName;
 
         if(cartItemService.isSeatAvailable(seatNumber, stadiumName, stadiumCity, date))
             throw new ConflictException("Seat number " +seatNumber+ " is already Occupied. Pick another seat");
 
         try{
 
-            CartItem cartItem = cartItemService.addToCart(client.getId(), matchName, seatNumber, stadiumName, stadiumCity, date);
+            CartItem cartItem = cartItemService.addToCart(client.getId(), homeTeamName,
+                    awayTeamName ,homeTeamLogo,awayTeamLogo , seatNumber, stadiumName, stadiumCity, date);
             return ResponseEntity.ok(cartItem);
 
         } catch (Exception e){

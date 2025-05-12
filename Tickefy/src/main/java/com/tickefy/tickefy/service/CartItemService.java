@@ -11,7 +11,8 @@ import java.util.UUID;
 @Service
 public interface CartItemService {
 
-    CartItem addToCart(UUID clientId,String matchName, int seatNumber, String stadiumName,
+    CartItem addToCart(UUID clientId, String homeTeamName, String awayTeamName,String homeTeamLogo,String awayTeamLogo,
+                       int seatNumber, String stadiumName,
                        String stadiumCity, LocalDateTime matchDate);
 
     List<CartItem> getClientCart(UUID clientId);

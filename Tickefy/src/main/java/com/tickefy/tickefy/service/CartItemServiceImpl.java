@@ -35,10 +35,12 @@ public class CartItemServiceImpl implements CartItemService {
 
 
     @Override
-    public CartItem addToCart(UUID clientId, String matchName, int seatNumber, String stadiumName,
+    public CartItem addToCart(UUID clientId, String homeTeamName, String awayTeamName,
+                              String homeTeamLogo, String awayTeamLogo,int seatNumber, String stadiumName,
                               String stadiumCity, LocalDateTime matchDate) {
 
-        CartItem cartItem = new CartItem(clientId,matchName, seatNumber,stadiumName,stadiumCity,
+        CartItem cartItem = new CartItem(clientId,homeTeamName,awayTeamName, homeTeamLogo ,awayTeamLogo ,
+                seatNumber,stadiumName,stadiumCity,
                 matchDate);
 
         return cartItemRepository.save(cartItem);

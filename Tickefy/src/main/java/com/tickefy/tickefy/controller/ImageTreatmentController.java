@@ -60,6 +60,7 @@ public class ImageTreatmentController {
 
             if (status == 409) {
 
+                System.out.println("Conflict Status : " + status);
                 UUID clientId = UUID.fromString(clientIdStr);
                 String newToken = userService.conflictClient(clientId, loggedUser);
 
