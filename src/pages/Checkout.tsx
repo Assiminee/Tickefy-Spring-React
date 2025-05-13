@@ -301,11 +301,18 @@ const Checkout: React.FC = () => {
 
       toast.success('Payment processed successfully!');
 
-      navigate('/confirmation', { 
-        state: { 
-          tickets: ticketData
-        } 
-      });
+      // navigate('/confirmation', { 
+      //   state: { 
+      //     tickets: ticketData
+      //   } 
+      // });
+
+      // Delay navigation slightly to allow state update to settle
+      setTimeout(() => {
+        console.log("Navigating to /facialrecognition (delayed)...");
+        navigate("/facialrecognition", { replace: true });
+      }, 0);
+      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Payment error:', error);
