@@ -571,7 +571,6 @@ const Cart = () => {
           }
 
           .futuristic-checkbox:checked::after {
-            content: '';
             position: absolute;
             left: 8px;
             top: 4px;

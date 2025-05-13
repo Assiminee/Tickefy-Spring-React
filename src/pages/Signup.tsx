@@ -355,7 +355,7 @@ const Signup = () => {
                 height: "48px",
                 borderRadius: "25px",
                 backgroundColor: "rgba(255,255,255,0.3)",
-                color: "white",
+                color: "black",
                 paddingLeft: isRTL ? "15px" : "50px",
                 paddingRight: isRTL ? "50px" : "15px",
                 border: "none",

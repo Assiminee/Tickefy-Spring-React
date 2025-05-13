@@ -180,12 +180,7 @@ const HomePage = () => {
                     />
                   </div>
                   <div className="text-sm mb-4">{formatMatchTime(match.date)}</div>
-                  <Link
-                    to={`/highlights/${match.id}`}
-                    className="bg-green-500 text-black font-bold py-2 px-4 rounded hover:bg-green-600 transition"
-                  >
-                    View Highlights
-                  </Link>
+                 
                 </div>
               ))
             ) : (
@@ -227,12 +222,14 @@ const HomePage = () => {
                         />
                       </div>
                     </div>
-                    <Link
+                    <div className="flex text-center w-full mt-8">
+                      <Link
                       to="/ticketlist"
-                      className="mt-2 px-10 py-2 bg-green-400 text-black font-bold rounded-lg"
+                      className="w-full py-2 bg-green-400 text-black font-bold rounded-lg"
                     >
                       Purchase a ticket
-                    </Link>
+                    </Link> </div>
+                    
                   </div>
                 ))
               ) : (
