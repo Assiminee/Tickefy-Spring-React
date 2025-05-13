@@ -1,6 +1,7 @@
 package com.tickefy.tickefy.service;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tickefy.tickefy.inputStream.MultipartInputStreamFileResource;
 import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,21 +41,28 @@ public class FacialRecognitionServiceImpl implements FacialRecognitionService {
                     Map.class
             );
 
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return response.getBody();
 
-            } else if (response.getStatusCode() == HttpStatus.BAD_REQUEST || response.getStatusCode() == HttpStatus.NOT_FOUND) {
-
-
+        } catch (HttpClientErrorException e) {
+            try {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("identified", false);
                 errorResponse.put("message", "Face not recognized.");
+                errorResponse.put("status", e.getStatusCode().value()); // include status for use in controller
                 return errorResponse;
-            } else {
-                throw new Exception("Unexpected error from facial recognition service: " + response.getStatusCode());
+            } catch (Exception parseException) {
+                return Map.of(
+                        "is_image_valid", false,
+                        "message", "Unknown error occurred while assessing image",
+                        "status", 500
+                );
             }
         } catch (Exception e) {
-            throw new Exception("Error calling facial recognition service: " + e.getMessage(), e);
+            return Map.of(
+                    "is_image_valid", false,
+                    "message", "Internal error: " + e.getMessage(),
+                    "status", 500
+            );
         }
     }
 }
