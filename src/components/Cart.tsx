@@ -51,7 +51,7 @@ const Cart = () => {
 
       // Fetch fresh match data to ensure logos are available
       await fetchAndStoreMatchData();
-      const matchData = await getMatchData();
+      const matchData = getMatchData();
 
       const response = await fetch('http://localhost:5001/api/cart', {
         headers: {
@@ -67,10 +67,11 @@ const Cart = () => {
 
       // Transform the backend data to match CartItem interface
       const transformedItems: TransformedCartItem[] = data.map((item: any) => {
-        
-        const matchInfo = matchData.response?.find((match) =>
-          match.teams.home.name === item.homeTeamName &&
-          match.teams.away.name === item.awayTeamName
+        // Find matching match data to get logos
+        const matchInfo = matchData.find(
+          (match) =>
+            match.homeTeam.name === item.homeTeamName &&
+            match.awayTeam.name === item.awayTeamName
         );
 
         return {
@@ -78,8 +79,8 @@ const Cart = () => {
           cartItemId: item.id.toString(),
           homeTeam: item.homeTeamName || 'Unknown Team',
           awayTeam: item.awayTeamName || 'Unknown Team',
-          homeTeamLogo: item.homeTeamLogo || 'https://media.api-sports.io/football/teams/40.png',
-          awayTeamLogo: item.awayTeamLogo || 'https://media.api-sports.io/football/teams/33.png',
+          homeTeamLogo: matchInfo?.homeTeam.logo || 'https://media.api-sports.io/football/teams/default.png',
+          awayTeamLogo: matchInfo?.awayTeam.logo || 'https://media.api-sports.io/football/teams/default.png',
           date: item.matchDate || '',
           seatNumber: item.seatNumber?.toString() || 'N/A',
           venueName: item.venueName || 'Unknown Venue',

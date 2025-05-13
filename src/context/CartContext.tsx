@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { CartItem } from '../types/match';
 
 // Define the Match interface (same as in TicketList)
 interface Match {
@@ -11,9 +12,9 @@ interface Match {
 
 // Define the CartContext type
 interface CartContextType {
-  cart: Match[];
-  addToCart: (match: Match) => void;
-  removeFromCart: (matchId: number) => void;
+  cart: CartItem[];
+  addToCart: (item: CartItem) => void;
+  removeFromCart: (id: number) => void;
   clearCart: () => void;
 }
 
@@ -21,21 +22,15 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Create a provider component
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<Match[]>([]);
+export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [cart, setCart] = useState<CartItem[]>([]);
 
-  const addToCart = (match: Match) => {
-    setCart((prevCart) => {
-      // Check if match already exists in cart
-      if (prevCart.some((item) => item.id === match.id)) {
-        return prevCart; // Return unchanged cart if duplicate
-      }
-      return [...prevCart, match]; // Add new match if not a duplicate
-    });
+  const addToCart = (item: CartItem) => {
+    setCart(prev => [...prev, item]);
   };
 
-  const removeFromCart = (matchId: number) => {
-    setCart((prevCart) => prevCart.filter((match) => match.id !== matchId));
+  const removeFromCart = (id: number) => {
+    setCart(prev => prev.filter(item => item.id !== id));
   };
 
   const clearCart = () => {
@@ -52,7 +47,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 // Custom hook to use the CartContext
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;

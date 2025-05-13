@@ -49,6 +49,17 @@ const ConfirmationPage: React.FC = () => {
   useEffect(() => {
     const fetchTicketDetails = async () => {
       try {
+        // First check if we have ticket data in location state
+        const ticketFromState = location.state?.ticket;
+        if (ticketFromState) {
+          setTicket(ticketFromState);
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 5000);
+          setLoading(false);
+          return;
+        }
+
+        // If no ticket in state, try to fetch from API
         const token = localStorage.getItem('token');
         if (!token) {
           toast.error('Authentication token not found');
@@ -58,7 +69,7 @@ const ConfirmationPage: React.FC = () => {
 
         const ticketId = location.state?.ticket?.id;
         if (!ticketId) {
-          toast.error('Ticket information not found');
+         // toast.error('Ticket information not found');
           navigate('/');
           return;
         }
@@ -75,8 +86,7 @@ const ConfirmationPage: React.FC = () => {
 
         const ticketData = await response.json();
         setTicket(ticketData);
-        setShowConfetti(true); // Trigger confetti when ticket is loaded
-        // Stop confetti after 5 seconds
+        setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 5000);
       } catch (error) {
         console.error('Error fetching ticket:', error);

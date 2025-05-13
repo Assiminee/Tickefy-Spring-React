@@ -2,23 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
 import { getMatchData, getMatchById, Match } from '../utils/matchDataService';
-
-// Use the Match interface from matchDataService
-type SimpleMatch = {
-  id: number;
-  homeTeam: {
-    name: string;
-    logo: string;
-  };
-  awayTeam: {
-    name: string;
-    logo: string;
-  };
-  league: {
-    name: string;
-  };
-  date: string;
-};
+import SeatSelectionPopup from '../components/SeatSelectionPopup';
+import { SimpleMatch, CartItem } from '../types/match';
 
 const TicketList = () => {
   const [matches, setMatches] = useState<SimpleMatch[]>([]);
@@ -26,11 +11,121 @@ const TicketList = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
-  const { addToCart, cart } = useCart();
+  const { addToCart, cart, clearCart } = useCart();
+  const [selectedTickets, setSelectedTickets] = useState<Set<number>>(new Set());
+  const [showSeatPopup, setShowSeatPopup] = useState(false);
+  const [selectedMatches, setSelectedMatches] = useState<SimpleMatch[]>([]);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [matchesPerPage] = useState(12);
+
+  // Add function to fetch cart items
+  const syncCartItems = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch('http://localhost:5001/api/cart', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      
+      // Clear existing cart and update with fresh data
+      clearCart();
+      data.forEach((item: any) => {
+        const cartItem: CartItem = {
+          id: parseInt(item.id),
+          homeTeam: item.homeTeamName || 'Unknown Team',
+          awayTeam: item.awayTeamName || 'Unknown Team',
+          homeTeamLogo: 'https://media.api-sports.io/football/teams/default.png',
+          awayTeamLogo: 'https://media.api-sports.io/football/teams/default.png',
+          date: item.matchDate,
+          seatNumber: item.seatNumber?.toString() || 'N/A',
+          venueName: item.venueName,
+          venueCity: item.venueCity,
+          price: 160
+        };
+        addToCart(cartItem);
+      });
+    } catch (error) {
+      console.error('Error syncing cart:', error);
+    }
+  };
+
+  // Add this effect to sync cart on focus and visibility change
+  useEffect(() => {
+    const syncAndValidateCart = async () => {
+      await syncCartItems();
+      // After syncing, validate all selected matches
+      setSelectedMatches(prev => 
+        prev.filter(match => !isMatchInCart(match.id))
+      );
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        syncAndValidateCart();
+      }
+    };
+
+    const handleFocus = () => {
+      syncAndValidateCart();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('pageshow', syncAndValidateCart);
+
+    // Initial sync
+    syncAndValidateCart();
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('pageshow', syncAndValidateCart);
+    };
+  }, []);
+
+  // Modified isMatchInCart to check both match details and seat number
+  const isMatchInCart = (matchId: number, seatNumber?: number) => {
+    return cart.some(item => {
+      const match = matches.find(m => m.id === matchId);
+      if (!match) return false;
+      
+      const matchNameMatches = 
+        item.homeTeam === match.homeTeam.name && 
+        item.awayTeam === match.awayTeam.name;
+      
+      // If seatNumber is provided, check it too
+      if (seatNumber !== undefined) {
+        return matchNameMatches && parseInt(item.seatNumber) === seatNumber;
+      }
+      
+      return matchNameMatches;
+    });
+  };
+
+  // Add this helper function near the top with other functions
+  const isMatchAndSeatInCart = (matchToCheck: SimpleMatch, seatNumber: number) => {
+    return cart.some(item => {
+      const matchNameMatches = 
+        item.homeTeam === matchToCheck.homeTeam.name &&
+        item.awayTeam === matchToCheck.awayTeam.name;
+      const seatMatches = parseInt(item.seatNumber) === seatNumber;
+      
+      if (matchNameMatches && seatMatches) {
+        console.log('Found duplicate:', { match: matchToCheck, seat: seatNumber, existingItem: item });
+        return true;
+      }
+      return false;
+    });
+  };
 
   useEffect(() => {
     const loadMatches = async () => {
@@ -38,7 +133,7 @@ const TicketList = () => {
         setLoading(true);
         const data = await getMatchData();
         if (data && data.response && Array.isArray(data.response)) {
-          const formattedMatches = data.response.map((match: Match): SimpleMatch => ({
+          const formattedMatches = data.response.map((match: Match) => ({
             id: match.fixture.id,
             homeTeam: {
               name: match.teams.home.name,
@@ -52,7 +147,11 @@ const TicketList = () => {
               name: match.league.name,
             },
             date: match.fixture.date,
-          }));
+            venue: {
+              name: match.fixture.venue?.name || '',
+              city: match.fixture.venue?.city || ''
+            }
+          } as SimpleMatch));
           setMatches(formattedMatches);
           setError(null);
         } else {
@@ -68,7 +167,7 @@ const TicketList = () => {
     loadMatches();
   }, []);
 
-  // Get current matches for pagination
+  // Get current matches for pagination (display only)
   const indexOfLastMatch = currentPage * matchesPerPage;
   const indexOfFirstMatch = indexOfLastMatch - matchesPerPage;
   const currentMatches = matches.slice(indexOfFirstMatch, indexOfLastMatch);
@@ -85,39 +184,164 @@ const TicketList = () => {
   };
 
   const handleAddToCart = (match: SimpleMatch) => {
-    if (cart.some((item) => item.id === match.id)) {
-      toast.info('Match already in cart!', {
+    // First check if any seats for this match are in cart
+    if (isMatchInCart(match.id)) {
+      toast.info(`${match.homeTeam.name} vs ${match.awayTeam.name} is already in your cart!`, {
         position: 'top-right',
         autoClose: 3000,
+        toastId: `already-in-cart-${match.id}`,
       });
       return;
     }
 
-    addToCart(match);
-    toast.success(`${match.homeTeam.name} vs ${match.awayTeam.name} added to cart!`, {
-      position: 'top-right',
-      autoClose: 3000,
+    setSelectedTickets(new Set([match.id]));
+    setSelectedMatches([match]);
+    setShowSeatPopup(true);
+  };
+
+  const handleTicketSelection = (matchId: number, match: SimpleMatch) => {
+    setSelectedTickets(prevSelected => {
+      const newSelected = new Set(prevSelected);
+      if (newSelected.has(matchId)) {
+        newSelected.delete(matchId);
+        setSelectedMatches(prev => prev.filter(m => m.id !== matchId));
+      } else {
+        newSelected.add(matchId);
+        // Check if match is already in selectedMatches before adding
+        setSelectedMatches(prev => {
+          if (prev.some(m => m.id === matchId)) {
+            return prev;
+          }
+          return [...prev, match];
+        });
+      }
+      return newSelected;
     });
   };
 
-  const handlePurchase = (match: Match) => {
-    const matchForCart: SimpleMatch = {
-      id: match.fixture.id,
-      homeTeam: {
-        name: match.teams.home.name,
-        logo: match.teams.home.logo,
-      },
-      awayTeam: {
-        name: match.teams.away.name,
-        logo: match.teams.away.logo,
-      },
-      league: {
-        name: match.league.name,
-      },
-      date: match.fixture.date,
-    };
+  const handleAddSelectedToCart = () => {
+    if (selectedMatches.length === 0) {
+      toast.error('Please select at least one match');
+      return;
+    }
+    // Ensure unique matches by using Set
+    const uniqueMatches = Array.from(new Set(selectedMatches.map(m => m.id)))
+      .map(id => selectedMatches.find(m => m.id === id)!);
+    setSelectedMatches(uniqueMatches);
+    setShowSeatPopup(true);
+  };
 
-    handleAddToCart(matchForCart);
+  const handleSeatSelectionConfirm = async (matchSeats: { match: SimpleMatch; seatNumber: number }[]) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please log in to add tickets to cart');
+        return;
+      }
+
+      // Sync cart before proceeding
+      await syncCartItems();
+
+      // Check for duplicates after syncing
+      const duplicates = matchSeats.filter(({ match, seatNumber }) => 
+        cart.some(item => 
+          item.homeTeam === match.homeTeam.name &&
+          item.awayTeam === match.awayTeam.name &&
+          parseInt(item.seatNumber) === seatNumber
+        )
+      );
+
+      if (duplicates.length > 0) {
+        duplicates.forEach(({ match, seatNumber }) => {
+          toast.error(`Seat ${seatNumber} for ${match.homeTeam.name} vs ${match.awayTeam.name} is already in your cart`);
+        });
+        if (duplicates.length === matchSeats.length) {
+          setShowSeatPopup(false);
+          setSelectedTickets(new Set());
+          setSelectedMatches([]);
+          return;
+        }
+      }
+
+      let successCount = 0;
+      for (const { match, seatNumber } of matchSeats) {
+        // Skip duplicates
+        if (cart.some(item => 
+          item.homeTeam === match.homeTeam.name &&
+          item.awayTeam === match.awayTeam.name &&
+          parseInt(item.seatNumber) === seatNumber
+        )) {
+          continue;
+        }
+
+        const params = new URLSearchParams({
+          homeTeamName: match.homeTeam.name,
+          awayTeamName: match.awayTeam.name,
+          homeTeamLogo: match.homeTeam.logo,
+          awayTeamLogo: match.awayTeam.logo,
+          matchDate: new Date(match.date).toISOString().slice(0, 16),
+          seatNumber: seatNumber.toString(),
+          VenueName: match.venue?.name || 'Manchester United Stadium',
+          VenueCity: match.venue?.city || 'England'
+        });
+        // console.log(match.venue?.name);
+        // console.log(match.venue?.city);
+        
+
+        const response = await fetch(`http://localhost:5001/api/cart?${params.toString()}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to add ticket to cart');
+        }
+
+        const cartItem = await response.json();
+        const cartItemData: CartItem = {
+          id: match.id,
+          homeTeam: match.homeTeam.name,
+          awayTeam: match.awayTeam.name,
+          homeTeamLogo: match.homeTeam.logo,
+          awayTeamLogo: match.awayTeam.logo,
+          date: match.date,
+          seatNumber: seatNumber.toString(),
+          venueName: match.venue?.name || 'Stade Mohammed V',
+          venueCity: match.venue?.city || 'Casablanca',
+          price: 160
+        };
+
+        addToCart(cartItemData);
+        successCount++;
+
+        // Sync cart after each successful addition
+        await syncCartItems();
+      }
+
+      if (successCount > 0) {
+        toast.success(`${successCount} new ${successCount === 1 ? 'ticket' : 'tickets'} added to cart!`, {
+          position: 'top-center',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+
+      setShowSeatPopup(false);
+      setSelectedTickets(new Set());
+      setSelectedMatches([]);
+
+      // Final sync
+      await syncCartItems();
+    } catch (error) {
+      console.error('Error adding tickets to cart:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to add tickets to cart');
+    }
   };
 
   const formatMatchTime = (utcDate: string) => {
@@ -317,25 +541,139 @@ const TicketList = () => {
 
           .match-card {
             transition: transform 0.2s ease-in-out;
-            height: 240px; /* Significantly increased height for much larger cards */
+            height: 240px;
             width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
             box-sizing: border-box;
+            position: relative;
           }
 
           .match-card:hover {
             transform: scale(1.05);
           }
 
+          .match-content {
+            transition: opacity 0.3s ease-in-out;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+          }
+
+          .cart-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none;
+            padding: 1rem;
+            gap: 1rem;
+          }
+
+          .cart-overlay-icon {
+            width: 48px;
+            height: 48px;
+            color: #22c55e;
+            transform: scale(0);
+            transition: transform 0.3s ease-in-out;
+          }
+
+          .cart-overlay-text {
+            color: white;
+            text-align: center;
+            font-size: 1rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+          }
+
+          .match-card[data-in-cart="true"]:hover .match-content {
+            opacity: 0;
+          }
+
+          .match-card[data-in-cart="true"]:hover .cart-overlay {
+            opacity: 1;
+          }
+
+          .match-card[data-in-cart="true"]:hover .cart-overlay-icon {
+            transform: scale(1);
+          }
+
+          .match-card[data-in-cart="true"]:hover .cart-overlay-text {
+            transform: translateY(0);
+            opacity: 1;
+            transition-delay: 0.1s;
+          }
+
+          .in-cart-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(34, 197, 94, 0.9);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          }
+
+          .match-card:hover .in-cart-indicator {
+            opacity: 1;
+          }
+
+          .cart-icon {
+            width: 16px;
+            height: 16px;
+          }
+
+          .checkbox-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            margin-bottom: 4px;
+          }
+
+          .checkbox-container:hover .tooltip {
+            opacity: 1;
+          }
+
           .match-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: 240px; /* Match the increased card height */
+            grid-auto-rows: 240px;
             gap: 0.75rem;
-            align-content: start; /* Align items to the top */
+            align-content: start;
           }
 
           .teams-section {
@@ -344,7 +682,7 @@ const TicketList = () => {
             align-items: center;
             width: 100%;
             flex: none;
-            height: 120px; /* Increased to fit larger card */
+            height: 120px;
             overflow: hidden;
           }
 
@@ -372,10 +710,56 @@ const TicketList = () => {
           .buttons-section {
             width: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
             gap: 0.25rem;
             flex: none;
-            height: 70px; /* Increased for larger buttons */
+            height: 50px;
+          }
+
+          .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .ticket-checkbox {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+          }
+
+          .purchase-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          }
+
+          .purchase-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+          }
+
+          .purchase-btn:active {
+            transform: translateY(0);
           }
 
           @media (max-height: 900px) {
@@ -389,7 +773,7 @@ const TicketList = () => {
               height: 90px;
             }
             .buttons-section {
-              height: 52px;
+              height: 42px;
             }
             .team-container img {
               width: 36px;
@@ -416,6 +800,10 @@ const TicketList = () => {
             .league-info span {
               font-size: 12px;
             }
+            .ticket-checkbox {
+              width: 16px;
+              height: 16px;
+            }
           }
         `}
       </style>
@@ -434,19 +822,20 @@ const TicketList = () => {
             
             {/* Matches Grid - Compact square cards with fixed size */}
             <div className="match-grid">
-              {currentMatches.map((match) => (
+              {currentMatches.map((match) => {
+                const inCart = isMatchInCart(match.id);
+                return (
                 <div
                   key={match.id}
                   className="match-card bg-black bg-opacity-80 rounded-lg shadow-md flex flex-col items-center text-white p-3 hover:bg-opacity-90"
+                    data-in-cart={inCart}
                 >
-                  {/* League Info */}
+                    <div className="match-content">
                   <div className="w-full text-center mb-2 league-info">
-                    <span className="text-sm text-gray-400 font-medium">{match.league.name}</span>
+                        <span className="text-sm text-gray-400 font-medium">{match.league?.name || 'Unknown League'}</span>
                   </div>
 
-                  {/* Teams Section */}
                   <div className="teams-section">
-                    {/* Home Team - Vertical */}
                     <div className="team-container">
                       <img
                         src={match.homeTeam.logo}
@@ -456,13 +845,11 @@ const TicketList = () => {
                       <span className="text-sm font-medium text-center line-clamp-2">{match.homeTeam.name}</span>
                     </div>
 
-                    {/* VS Badge */}
                     <div className="vs-container">
                       <span className="text-lg font-bold text-green-400">VS</span>
                       <span className="text-sm text-gray-300">{formatMatchTime(match.date)}</span>
                     </div>
 
-                    {/* Away Team - Vertical */}
                     <div className="team-container">
                       <img
                         src={match.awayTeam.logo}
@@ -473,29 +860,53 @@ const TicketList = () => {
                     </div>
                   </div>
 
-                  {/* Buttons */}
                   <div className="buttons-section">
                     <button
-                      onClick={() => handleAddToCart(match)}
-                      className="w-full bg-green-500 text-black font-medium py-2 px-3 rounded-md hover:bg-green-600 transition-colors flex items-center justify-center space-x-1 text-sm"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                      <span>Add</span>
-                    </button>
-                    <button
                       onClick={() => handleShowDetails(match.id)}
-                      className="w-full bg-blue-500 text-white font-medium py-2 px-3 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center space-x-1 text-sm"
+                          className="flex-1 bg-blue-500 text-white font-medium py-2 px-3 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-content: center space-x-1 text-sm"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Details</span>
                     </button>
+                        <div className="checkbox-container ml-2 relative">
+                          <input
+                            type="checkbox"
+                            className={`ticket-checkbox ${inCart ? 'checkbox-disabled' : ''}`}
+                            checked={selectedTickets.has(match.id)}
+                            onChange={(e) => !inCart && handleTicketSelection(match.id, match)}
+                            disabled={inCart}
+                            aria-label={`Select ${match.homeTeam.name} vs ${match.awayTeam.name} ticket`}
+                          />
                   </div>
                 </div>
-              ))}
+                    </div>
+
+                    {inCart && (
+                      <div className="cart-overlay">
+                        <svg 
+                          className="cart-overlay-icon" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24" 
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" 
+                          />
+                        </svg>
+                        <div className="cart-overlay-text">
+                          This match is already in your cart
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Pagination */}
@@ -537,6 +948,18 @@ const TicketList = () => {
                   } text-white transition`}
                 >
                   Next
+                </button>
+              </div>
+            )}
+
+            {/* Global Purchase Button */}
+            {selectedTickets.size > 0 && (
+              <div className="fixed bottom-4 right-4 z-50">
+                <button
+                  onClick={handleAddSelectedToCart}
+                  className="bg-green-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-600 transition-colors flex items-center space-x-2"
+                >
+                  <span>Add {selectedTickets.size} to Cart</span>
                 </button>
               </div>
             )}
@@ -650,6 +1073,10 @@ const TicketList = () => {
                           name: selectedMatch.league.name,
                         },
                         date: selectedMatch.fixture.date,
+                        venue: {
+                          name: selectedMatch.fixture.venue?.name || '',
+                          city: selectedMatch.fixture.venue?.city || '',
+                        }
                       };
                       handleAddToCart(matchForCart);
                       setSelectedMatch(null);
@@ -666,6 +1093,14 @@ const TicketList = () => {
             )}
           </div>
         </div>
+      )}
+
+      {showSeatPopup && (
+        <SeatSelectionPopup
+          matches={selectedMatches}
+          onClose={() => setShowSeatPopup(false)}
+          onConfirm={handleSeatSelectionConfirm}
+        />
       )}
     </>
   );
