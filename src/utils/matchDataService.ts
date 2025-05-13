@@ -132,7 +132,7 @@ const generateMatches = () => {
     for (let i = 0; i < teams.length; i++) {
       for (let j = i + 1; j < teams.length; j++) {
         const matchDate = new Date(startDate);
-        matchDate.setDate(startDate.getDate() + matchId - 1);
+        matchDate.setDate(startDate.getDate());
 
         matches.push({
           fixture: {
