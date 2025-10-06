@@ -123,16 +123,17 @@ const generateMatches = () => {
 
   const matches: Match[] = [];
   let matchId = 1;
-  const startDate = new Date("2025-05-14T11:00:00+00:00");
+  // const startDate = new Date("2025-05-14T11:00:00+00:00");
 
   // Generate matches for each league
   leagues.forEach(league => {
     const teams = league.teams;
     // Generate matches between all teams in the league
     for (let i = 0; i < teams.length; i++) {
+      const startDate = new Date();
       for (let j = i + 1; j < teams.length; j++) {
-        const matchDate = new Date(startDate);
-        matchDate.setDate(startDate.getDate());
+        const matchDate = (new Date()).setDate(startDate.getDate() + j - 1);
+        // matchDate.setDate(startDate.getDate());
 
         matches.push({
           fixture: {
