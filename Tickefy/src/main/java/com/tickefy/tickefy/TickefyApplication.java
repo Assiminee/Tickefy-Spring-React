@@ -20,10 +20,10 @@ public class TickefyApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         Client androidClient = new Client();
 
-        androidClient.setEmail('android-client@tickefy.com');
-        androidClient.setF_name('Android');
-        androidClient.setL_name('Client');
+        androidClient.setEmail("android-client@tickefy.com");
+        androidClient.setF_name("Android");
+        androidClient.setL_name("Client");
         androidClient.setRole(Role.ROLE_ADMIN);
-        androidClient.setPassword(passwordEncoder.encode('AndroidClient@1'));
+        androidClient.setPassword(passwordEncoder.encode("AndroidClient@1"));
     }
 }
