@@ -27,7 +27,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/pjt_tickefy_backend_main
     username: root
-    password: 
+    password: Minnie@1
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -47,8 +47,3 @@ logging:
       hibernate:
         SQL: DEBUG
         type: TRACE
-
-
-
-
-

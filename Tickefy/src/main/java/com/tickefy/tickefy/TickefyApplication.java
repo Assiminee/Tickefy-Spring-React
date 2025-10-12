@@ -23,7 +23,10 @@ public class TickefyApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
+        if (repo.existsByEmail("android-client@tickefy.com"))
+            return;
+
         Client androidClient = new Client();
 
         androidClient.setEmail("android-client@tickefy.com");
