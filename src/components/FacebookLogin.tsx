@@ -10,7 +10,6 @@ const FacebookLogin = () => {
 
   const handleLogin = () => {
     if (!window.FB) {
-      console.error("Facebook SDK not loaded yet.");
       toast.error("Facebook SDK not loaded!");
       return;
     }
@@ -24,7 +23,6 @@ const FacebookLogin = () => {
             if (loginResponse.authResponse) {
               fetchUserInfo();
             } else {
-              console.error("User cancelled login or did not fully authorize.");
               toast.error("Facebook login cancelled or not authorized!");
             }
           },
@@ -47,7 +45,6 @@ const FacebookLogin = () => {
           navigate("/");
         }, 1500); // Delay to allow toast to show
       } else {
-        console.error("Failed to fetch Facebook user info.");
         toast.error("Failed to fetch Facebook user info!");
       }
     });

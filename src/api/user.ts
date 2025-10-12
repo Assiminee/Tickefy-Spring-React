@@ -43,12 +43,6 @@ export const updateUserProfile = async (userData: any, profilePictureFile: File 
     formData.append('profilePicture', emptyFile);
   }
 
-  console.log("Sending FormData:", formData);
-  // Log keys/values for debugging
-  for (let [key, value] of formData.entries()) { 
-    console.log(key, value);
-  } 
-
   const res = await axios.put(`${API_BASE_URL}/api/users`, formData, {
     headers: {
       ...authHeader(), // Include authorization header

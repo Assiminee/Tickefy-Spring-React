@@ -52,7 +52,6 @@ const BuyTicket: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error('No authentication token found');
         setUserProfile(null);
         return;
       }
@@ -70,7 +69,6 @@ const BuyTicket: React.FC = () => {
       const profile = await response.json();
       setUserProfile(profile);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
       setUserProfile(null);
     }
   };
@@ -176,7 +174,6 @@ const BuyTicket: React.FC = () => {
         toast.error(msg);
       }
     } catch (error) {
-      console.error('Error validating face photo:', error);
       toast.error('An unexpected error occured');
     } finally {
       setIsCheckingQuality(false);

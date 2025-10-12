@@ -69,7 +69,6 @@ const SeatSelectionPopup: React.FC<SeatSelectionPopupProps> = ({ matches, onClos
       }
 
       if (response.status === 500) {
-        console.error('Server error during seat verification', errorDetails);
         toast.error(`Server error: Unable to verify seat availability${errorDetails}`);
         return false;
       }
@@ -80,7 +79,6 @@ const SeatSelectionPopup: React.FC<SeatSelectionPopupProps> = ({ matches, onClos
       }
 
       if (!response.ok) {
-        console.error('Seat verification error:', errorDetails);
         toast.error(`Failed to verify seat availability${errorDetails}`);
         return false;
       }
@@ -88,7 +86,6 @@ const SeatSelectionPopup: React.FC<SeatSelectionPopupProps> = ({ matches, onClos
       // If we get here, the seat is available
       return true;
     } catch (error) {
-      console.error('Error checking seat availability:', error);
       toast.error('Network error: Unable to verify seat availability. Please check your connection.');
       return false;
     }

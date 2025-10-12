@@ -123,18 +123,18 @@ const generateMatches = () => {
 
   const matches: Match[] = [];
   let matchId = 1;
-  // const startDate = new Date("2025-05-14T11:00:00+00:00");
 
   // Generate matches for each league
   leagues.forEach(league => {
     const teams = league.teams;
+    const startDate = new Date();
+    
     // Generate matches between all teams in the league
     for (let i = 0; i < teams.length; i++) {
-      const startDate = new Date();
       for (let j = i + 1; j < teams.length; j++) {
         const matchDate = new Date(startDate);
-        matchDate.setDate(startDate.getDate() + (j - 1));
-        // matchDate.setDate(startDate.getDate());
+        matchDate.setDate(startDate.getDate() + (j % 2 ? 1 : 0));
+        matchDate.setHours(startDate.getHours() + j);
 
         matches.push({
           fixture: {
@@ -173,7 +173,12 @@ const generateMatches = () => {
   });
 
   return {
-    response: matches
+    response: matches.sort((m1, m2) => {
+      const m1Date = new Date(m1.fixture.date);
+      const m2Date = new Date (m2.fixture.date);
+
+      return m1Date.getTime() - m2Date.getTime();
+    })
   };
 };
 
@@ -191,9 +196,7 @@ const LEAGUE_IDS = [
 ];
 
 const fetchAllLeaguesData = async (): Promise<MatchResponse | null> => {
-  try {
-    console.log('Fetching data for all leagues...');
-    
+  try {    
     // Make a single API call for all leagues with more parameters
     const response = await fetch('https://v3.football.api-sports.io/fixtures?league=' + LEAGUE_IDS.join('-') + '&season=2023&next=20', {
       headers: {
@@ -206,7 +209,6 @@ const fetchAllLeaguesData = async (): Promise<MatchResponse | null> => {
     }
 
     const data = await response.json();
-    console.log('API Response for all leagues:', data);
 
     // Store the complete response
     localStorage.setItem('allMatchData', JSON.stringify(data));
@@ -214,7 +216,6 @@ const fetchAllLeaguesData = async (): Promise<MatchResponse | null> => {
     
     return data as MatchResponse;
   } catch (error) {
-    console.error('Error fetching all leagues data:', error);
     return null;
   }
 };
@@ -226,24 +227,19 @@ export const fetchAndStoreMatchData = async (): Promise<MatchResponse> => {
     const now = Date.now();
     
     if (lastFetch && (now - parseInt(lastFetch)) < 24 * 60 * 60 * 1000) {
-      console.log('Using cached data - less than 24 hours old');
       const cachedData = localStorage.getItem('allMatchData');
       return cachedData ? JSON.parse(cachedData) : SAMPLE_MATCHES;
     }
 
     // If no cached data or it's old, fetch new data
     const newData = await fetchAllLeaguesData();
-    if (newData && newData.response && newData.response.length > 0) {
-      return newData;
-    }
+    if (newData && newData.response && newData.response.length > 0) return newData;
 
     // Use sample data as fallback
-    console.log('Using sample data as fallback');
     localStorage.setItem('allMatchData', JSON.stringify(SAMPLE_MATCHES));
     localStorage.setItem('lastFetchTimestamp', now.toString());
     return SAMPLE_MATCHES;
   } catch (error) {
-    console.error('Error in fetchAndStoreMatchData:', error);
     return SAMPLE_MATCHES;
   }
 };
@@ -255,19 +251,12 @@ export const getMatchData = async (): Promise<MatchResponse> => {
     const lastFetch = localStorage.getItem('lastFetchTimestamp');
     const now = Date.now();
 
-    console.log('SAMPLE_MATCHES contains:', SAMPLE_MATCHES.response.length, 'matches');
-
     // If we have recent data in localStorage, use it
     if (data && lastFetch && (now - parseInt(lastFetch)) < 24 * 60 * 60 * 1000) {
       const parsedData = JSON.parse(data);
-      console.log('Found data in localStorage:', parsedData);
-      console.log('Number of matches in localStorage:', parsedData.response?.length || 0);
       return parsedData;
     }
 
-    // If no data or old data, store and return sample data
-    console.log('No valid data in localStorage, using sample data');
-    console.log('Sample data being stored:', SAMPLE_MATCHES);
     
     // Make sure we're storing the correct structure
     const dataToStore = {
@@ -277,12 +266,8 @@ export const getMatchData = async (): Promise<MatchResponse> => {
     localStorage.setItem('allMatchData', JSON.stringify(dataToStore));
     localStorage.setItem('lastFetchTimestamp', now.toString());
     
-    const verifyData = localStorage.getItem('allMatchData');
-    console.log('Verified stored data:', JSON.parse(verifyData || '{}'));
-    
     return dataToStore;
   } catch (error) {
-    console.error('Error in getMatchData:', error);
     // Return properly structured sample data even in error case
     return {
       response: SAMPLE_MATCHES.response
@@ -300,7 +285,6 @@ export const getMatchById = (matchId: number): Match | null => {
     
     return matchData.response.find(match => match.fixture.id === matchId) || null;
   } catch (error) {
-    console.error('Error getting match by ID:', error);
     return null;
   }
 };
@@ -315,7 +299,6 @@ export const getMatchesByLeague = (leagueId: number): Match[] => {
     
     return matchData.response.filter(match => match.league.id === leagueId);
   } catch (error) {
-    console.error('Error getting matches by league:', error);
     return [];
   }
 }; 

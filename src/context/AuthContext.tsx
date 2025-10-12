@@ -40,9 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (parsedUser && parsedUser.id) {
           setUser(parsedUser);
         }
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
+      } catch (error) {}
     }
     setLoading(false); // Set loading to false when done
   }, []);

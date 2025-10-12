@@ -57,9 +57,6 @@ const FacialRecognition = () => {
     try {
       const assessmentUrl = `${API_BASE_URL}/api/images`;
       
-      console.log(`Sending image quality assessment to: ${assessmentUrl}`);
-      console.log("Image file:", imageFile);
-      
       // Use token directly for authorization
       const response = await axios.post(assessmentUrl, formData, {
         headers: {
@@ -68,16 +65,12 @@ const FacialRecognition = () => {
         },
       });
 
-      console.log("Backend response:", response.data);
 
       toast.success("Image quality accepted! Proceeding...");
       navigate('/'); 
     } catch (error: any) {
-      console.error("Error assessing image quality:", error);
       
       if (error.response) {
-        console.error("Response status:", error.response.status);
-        console.error("Response data:", error.response.data);
         
         // More specific error handling
         if (error.response.status === 401) {
@@ -92,10 +85,8 @@ const FacialRecognition = () => {
           toast.error(msg);
         }
       } else if (error.request) {
-        console.error("No response received:", error.request);
         toast.error("No response from server. Please check your connection.");
       } else {
-        console.error("Error message:", error.message);
         toast.error("An error occurred. Please try again.");
       }
       

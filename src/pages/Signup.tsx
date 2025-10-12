@@ -119,7 +119,6 @@ const Signup = () => {
   };
 
   const completeSignup = async () => {
-    console.log("Attempting signup with:", { f_name, l_name, email, phone, birthdate: birthdate?.toISOString() });
     try {
       const formData = new FormData();
       formData.append("f_name", f_name.trim());
@@ -129,22 +128,17 @@ const Signup = () => {
       formData.append("password", password.trim());
       formData.append("phone", phone.trim());
       
-      console.log("Sending signup request to backend...");
       // 1. Perform Signup POST
       const signupRes = await axios.post(`${API_BASE_URL}/auth/signup`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Signup API Response Status:", signupRes.status);
-      console.log("Signup API Response Data:", signupRes.data);
 
       // 2. Save the received JWT token
       const { jwt } = signupRes.data;
       if (!jwt) {
-        console.error("JWT token missing in signup response.");
         throw new Error("Signup completed but no JWT token received.");
       }
       localStorage.setItem("token", jwt);
-      console.log("JWT token saved to localStorage.");
 
       // 3. Construct User object manually
       const newUserForContext: User = {
@@ -158,33 +152,18 @@ const Signup = () => {
         nationality: undefined, 
         loginMethod: 'email',
       };
-      console.log("Constructed user object for context (manual):", newUserForContext);
       
       // 4. Call context login with the manually constructed user data
-      console.log("Calling context login function...");
       login(newUserForContext); 
-      console.log("Context login function called.");
       
       toast.success(translations[language].signup + " successful!");
       
       // Delay navigation slightly to allow state update to settle
       setTimeout(() => {
-        console.log("Navigating to /facialrecognition (delayed)...");
         navigate("/facialrecognition", { replace: true });
       }, 0);
 
-    } catch (err: any) { 
-      console.error("SIGNUP FAILED:", err);
-      if (err.response) {
-        console.error("Signup Error Response Data:", err.response.data);
-        console.error("Signup Error Response Status:", err.response.status);
-        console.error("Signup Error Response Headers:", err.response.headers);
-      } else if (err.request) {
-        console.error("Signup Error Request:", err.request);
-      } else {
-        console.error("Signup Error Message:", err.message);
-      }
-      
+    } catch (err: any) {
       localStorage.removeItem("token"); 
       toast.error(err.response?.data?.message || "Signup failed!"); 
     }

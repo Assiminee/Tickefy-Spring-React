@@ -111,7 +111,6 @@ const Cart = () => {
       });
 
     } catch (error) {
-      console.error('Error fetching cart:', error);
       toast.error('Failed to load cart items');
     } finally {
       setIsLoading(false);
@@ -150,7 +149,6 @@ const Cart = () => {
           
           return true;
         } catch (error) {
-          console.error(`Error removing item ${cartItemId}:`, error);
           return false;
         }
       });
@@ -170,7 +168,6 @@ const Cart = () => {
 
       await fetchCartItems();
     } catch (error) {
-      console.error('Error removing items:', error);
       toast.error('Failed to remove items from cart');
     } finally {
       setIsLoading(false);
@@ -239,7 +236,6 @@ const Cart = () => {
       navigate('/checkout');
       
     } catch (error) {
-      console.error('Purchase error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to prepare purchase');
     } finally {
       setIsLoading(false);
